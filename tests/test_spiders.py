@@ -6,15 +6,50 @@ import tempfile
 
 from pathlib import Path
 
-from finscraper.spiders import ISArticle
+from finscraper.spiders.isarticle import ISArticleSpider
 
 
 def test_ISArticle():
-    jobdir = Path(tempfile.gettempdir()) / 'isarticle2'
-    spider = ISArticle(
-        category=None,
-        FEEDS={jobdir / 'items.json': {'format': 'json'}},
-    )
-    spider.run()
+    # Test scraping
+    spider = ISArticleSpider().scrape(10)
+    df = spider.get()
+    assert len(df) >= 10
+    assert len(df.columns) == 8
 
-    # TODO: Figure out how to test properly...?
+    # Test continuing scraping
+    df2 = spider.scrape(10).get()
+    assert len(df2) > len(df)
+
+    # Save and load spider
+    jobdir = spider.save()
+    spider = ISArticleSpider.load(jobdir)
+
+    df3 = spider.scrape(10).get()
+    assert len(df3) > len(df2)
+
+
+def test_spider_save_load_with_jobdir():
+    jobdir = '../jobdir'
+    category = 'jaakiekko'
+
+    spider = ISArticleSpider(category=category, jobdir=jobdir)
+    
+    save_jobdir = spider.save()
+    loaded_spider = ISArticleSpider.load(save_jobdir)
+
+    assert (jobdir == str(spider.jobdir)
+            == save_jobdir == str(loaded_spider.jobdir))
+    assert category == spider.category == loaded_spider.category
+
+
+def test_spider_save_load_without_jobdir():
+    category = 'jaakiekko'
+
+    spider = ISArticleSpider(category=category)
+    
+    save_jobdir = spider.save()
+    loaded_spider = ISArticleSpider.load(save_jobdir)
+
+    assert spider.jobdir is not None
+    assert (str(spider.jobdir) == save_jobdir == str(loaded_spider.jobdir))
+    assert category == spider.category == loaded_spider.category

@@ -8,7 +8,7 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.loader import ItemLoader
 from scrapy.loader.processors import TakeFirst, Identity, MapCompose
 
-from finscraper.scrapy_spiders.extensions import ExtendedSpider
+from finscraper.spiders.extensions import ExtendedSpider
 from finscraper.utils import strip_join
 
 
@@ -20,6 +20,14 @@ class ISArticleSpider(ExtendedSpider):
     custom_settings = {}
 
     def __init__(self, category=None, *args, **kwargs):
+        """Fetch IltaSanomat articles.
+        
+        Args:
+            category (str, list or None): Category to fetch articles from,    
+                meaning pages under 'is.fi/<category>/'. Defaults to None,
+                which fetches articles everywhere.
+            jobdir (str):
+        """
         super(ISArticleSpider, self).__init__(*args, **kwargs)
         self.category = category
 
@@ -53,8 +61,11 @@ class ISArticleSpider(ExtendedSpider):
             canonicalize=True
         )
 
+    def _get_params(self):
+        return {'category': self.category}
+
     @staticmethod
-    def get_image_metadata(text):
+    def _get_image_metadata(text):
         sel = Selector(text=text)
         return {
             'src': sel.xpath('//img//@src').get(),
@@ -62,7 +73,7 @@ class ISArticleSpider(ExtendedSpider):
             'caption': strip_join(sel.xpath('//p//text()').getall())
         }
     
-    def parse_item(self, resp):
+    def _parse_item(self, resp):
         l = ItemLoader(item=ISArticleItem(), response=resp)
         l.add_value('url', resp.url)
         l.add_value('time', int(time.time()))
@@ -110,6 +121,6 @@ class ISArticleItem(Item):
         output_processor=TakeFirst()
     )
     images = Field(
-        input_processor=MapCompose(ISArticleSpider.get_image_metadata),
+        input_processor=MapCompose(ISArticleSpider._get_image_metadata),
         output_processor=Identity()
     )
