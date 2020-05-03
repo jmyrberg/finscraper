@@ -38,11 +38,13 @@ Please see example [Jupyter notebooks]() for more detailed reference:
 * [Continuing scraping from previous run](notebooks/continuing-scraping-from-previous-run.ipynb)
 
 
-## Development
+## Contributing
 
-Web scrapers break when the formatting of websites change, which may happen quite often **often**! Unfortunately, I can't promise being able to keep this repository always up-to-date, but you're always welcome to make a pull request, when a spider stops working. Thus, I encourage you to have a look at the spiders at [finscraper/scrapy_spiders -module](finscraper/scrapy_spiders) and modify the xpaths to correspond to the latest version of the website to be scraped.
+Web scrapers break when the formatting of websites change - **often**. Unfortunately, I can't make a promise to keep this repository up-to-date all by myself, and therefore I invite you to help when a spider stops working:
 
-At minimum, I hope that this repository will provide you some basic information on how you can build a spider on your own. 
+1) Update the xpaths of a broken spider within the [finscraper/scrapy_spiders -module](finscraper/scrapy_spiders) to correspond to the latest version of the website to be scraped
+
+2) Create a pull request
 
 
 ---
