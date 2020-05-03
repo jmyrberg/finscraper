@@ -1,8 +1,9 @@
-"""Module for scrapy extensions."""
+"""Module for wrapping Scrapy spiders."""
 
 
 import json
 import pickle
+import shutil
 import tempfile
 import uuid
 
@@ -21,7 +22,7 @@ from scrapy.spiders import Spider
 from scrapy.utils.log import configure_logging
 
 
-def _run_process(func, *args, **kwargs):
+def _run_func_as_process(func, *args, **kwargs):
     q = Queue()
     p = Process(target=func, args=(q, *args),
                 kwargs=kwargs)
@@ -33,11 +34,11 @@ def _run_process(func, *args, **kwargs):
         raise result
 
 
-def _run_spider(q, spider, spider_kwargs, settings):
+def _run_spider_func(q, spider_cls, spider_params, settings):
     try:
         configure_logging()
         runner = CrawlerRunner(settings)
-        deferred = runner.crawl(spider, **spider_kwargs)
+        deferred = runner.crawl(spider_cls, **spider_params)
         deferred.addBoth(lambda _: reactor.stop())
         reactor.run()
         q.put(None)
@@ -45,59 +46,54 @@ def _run_spider(q, spider, spider_kwargs, settings):
         Queue.put(e)
 
 
-class ExtendedSpider(Spider):
+class SpiderWrapper:
 
-    def __init__(self, jobdir=None, *args, **kwargs):
+    def __init__(self, spider_cls, spider_params, jobdir=None):
+        self.spider_cls = spider_cls
+        self.spider_params = spider_params
+
         if jobdir is None:
-            self.jobdir = Path(tempfile.gettempdir()) / str(uuid.uuid4())
+            self._jobdir = Path(tempfile.gettempdir()) / str(uuid.uuid4())
         else:
-            self.jobdir = Path(jobdir)
-        self.jobdir.mkdir(parents=True, exist_ok=True)
-        self.save_path = self.jobdir / 'items.jl'
-        super(ExtendedSpider, self).__init__(*args, **kwargs)
+            self._jobdir = Path(jobdir)
+        self._jobdir.mkdir(parents=True, exist_ok=True)
+        
+        self._items_save_path = self._jobdir / 'items.jl'
+        self._spider_save_path = self._jobdir / 'spider.pkl'
+        
+        # Note: Parameters cannot be changed outside by setting them
+        for param in self.spider_params:
+            setattr(self, param, self.spider_params[param])
 
-    def _get_params(self):
-        raise NotImplementedError('Function `_get_params` not implemented!')
+    @property
+    def jobdir(self):
+        return str(self._jobdir)
 
-    def _parse_item(self):
-        raise NotImplementedError('Function `_parse_item` not implemented!')
+    @property
+    def items_save_path(self):
+        return str(self._items_save_path)
 
-    def parse(self, resp, to_parse=False):
-        """Parse items and follow links based on defined link extractors."""
-        if to_parse:
-            yield self._parse_item(resp)
+    @property
+    def spider_save_path(self):
+        return str(self._spider_save_path)
 
-        # Parse items and further on extract links from those pages
-        item_links = self.item_link_extractor.extract_links(resp)
-        for link in item_links:
-            yield Request(link.url, callback=self.parse,
-                          cb_kwargs={'to_parse': True})
-
-        # Extract all links from this page
-        follow_links = self.follow_link_extractor.extract_links(resp)
-        for link in follow_links:
-            yield Request(link.url, callback=self.parse)
-
-    def _run(self, itemcount=10, timeout=0, pagecount=0, errorcount=0,
-             settings=None):
-        """Run spider."""
+    def _run_spider(self, itemcount=10, timeout=0, pagecount=0, errorcount=0,
+                    settings=None):
         settings_ = Settings()
         settings_.setmodule('finscraper.settings', priority='project')
         settings_['JOBDIR'] = self.jobdir
-        settings_['FEEDS'] = {self.save_path: {'format': 'jsonlines'}}
+        settings_['FEEDS'] = {self.items_save_path: {'format': 'jsonlines'}}
         settings_['CLOSESPIDER_ITEMCOUNT'] = itemcount
         settings_['CLOSESPIDER_TIMEOUT'] = timeout
         settings_['CLOSESPIDER_PAGECOUNT'] = pagecount
         settings_['CLOSESPIDER_ERRORCOUNT'] = errorcount
         if settings is not None:
             settings_.update(settings)
-        spider_params = self._get_params()
-        spider_params['jobdir'] = self.jobdir
         try:
-            _run_process(
-                func=_run_spider,
-                spider=self.__class__,
-                spider_kwargs=spider_params,
+            _run_func_as_process(
+                func=_run_spider_func,
+                spider_cls=self.spider_cls,
+                spider_params=self.spider_params,
                 settings=settings_
             )
         except KeyboardInterrupt:
@@ -117,7 +113,7 @@ class ExtendedSpider(Spider):
         Returns:
             self
         """
-        self._run(itemcount=n)
+        self._run_spider(itemcount=n, settings=settings)
         return self
 
     def get(self, fmt='df'):
@@ -134,8 +130,8 @@ class ExtendedSpider(Spider):
         if fmt not in ['df', 'list']:
             ValueError(f'Format {fmt} should be in ["df", "list"]')
         jsonlines = []
-        if self.save_path.exists():
-            with open(self.save_path, 'r') as f:
+        if self._items_save_path.exists():
+            with open(self.items_save_path, 'r') as f:
                 for line in f:
                     jsonlines.append(json.loads(line))
         if fmt == 'list':
@@ -144,24 +140,26 @@ class ExtendedSpider(Spider):
             return pd.DataFrame(jsonlines)
     
     def save(self):
-        """Save spider in `jobdir` for later use."""
-        spider_params = self._get_params()
-        spider_class = self.__class__
+        """Save spider in `jobdir` for later use.
+        
+        Returns:
+            Path to job directory as a string.
+        """
+        save_tuple = (self.spider_cls, self.spider_params, self.jobdir)
+        with open(self.spider_save_path, 'wb') as f:
+            pickle.dump(save_tuple, f)
+        return self.jobdir
 
-        save_path = self.jobdir / 'spider.pkl'
-        with open(save_path, 'wb') as f:
-            pickle.dump((spider_class, spider_params), f)
-        return str(self.jobdir)
-
-    @staticmethod
-    def load(jobdir):
+    @classmethod
+    def load(cls, jobdir):
         """Load spider from `jobdir`."""
-        with open(Path(jobdir) / 'spider.pkl', 'rb') as f:
-            spider_class, spider_params = pickle.load(f)
-        spider_params['jobdir'] = Path(jobdir)
-        return spider_class(**spider_params)
+        expected_path = Path(jobdir) / 'spider.pkl'
+        with open(expected_path, 'rb') as f:
+            (spider_cls, spider_params, jobdir) = pickle.load(f)
+        return cls(jobdir=jobdir, **spider_params)
 
-    def close(self):
-        # TODO: Implement function that deletes the jobdir safely
-        #       Maybe with __del__ as well...?
-        #       + cleanup the previous implementation
+    def clear(self):
+        """Clear contents of `jobdir`."""
+        if self._jobdir.exists():
+            shutil.rmtree(self._jobdir)
+        self._jobdir.mkdir(parents=True, exist_ok=True)

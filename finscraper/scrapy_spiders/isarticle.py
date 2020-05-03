@@ -4,22 +4,27 @@
 import time
 
 from scrapy import Item, Field, Selector
+from scrapy.crawler import Spider
 from scrapy.linkextractors import LinkExtractor
 from scrapy.loader import ItemLoader
 from scrapy.loader.processors import TakeFirst, Identity, MapCompose
 
-from finscraper.spiders.extensions import ExtendedSpider
+from finscraper.scrapy_spiders.mixins import FollowAndParseItemMixin
 from finscraper.utils import strip_join
 
 
-class ISArticleSpider(ExtendedSpider):
+class ISArticleSpider(FollowAndParseItemMixin, Spider):
     name = 'isarticle'
-    allowed_domains = ['is.fi']
-    deny_domains = ('ravit.is.fi')
-    deny = ('.*/tag/.*', '.*/haku/.*', '.*/reseptit/.*')
     custom_settings = {}
 
-    def __init__(self, category=None, *args, **kwargs):
+    def __init__(
+            self,
+            category=None,
+            allow_domains=('is.fi'),
+            deny_domains=('ravit.is.fi'),
+            deny=('.*/tag/.*', '.*/haku/.*', '.*/reseptit/.*'),
+            *args,
+            **kwargs):
         """Fetch IltaSanomat articles.
         
         Args:
@@ -30,6 +35,9 @@ class ISArticleSpider(ExtendedSpider):
         """
         super(ISArticleSpider, self).__init__(*args, **kwargs)
         self.category = category
+        self.allow_domains = allow_domains
+        self.deny_domains = deny_domains
+        self.deny = deny
 
         if category is None:
             self.start_urls = ['https://www.is.fi']
@@ -47,22 +55,19 @@ class ISArticleSpider(ExtendedSpider):
                 self.allow_items.append(rf'.*/{cat}/art\-[0-9]+\.html')
 
         self.follow_link_extractor = LinkExtractor(
-            allow_domains=self.allowed_domains,
+            allow_domains=self.allow_domains,
             allow=self.allow_follow,
             deny=self.deny,
             deny_domains=self.deny_domains,
             canonicalize=True
         )
         self.item_link_extractor = LinkExtractor(
-            allow_domains=self.allowed_domains,
+            allow_domains=self.allow_domains,
             allow=self.allow_items,
             deny=self.deny,
             deny_domains=self.deny_domains,
             canonicalize=True
         )
-
-    def _get_params(self):
-        return {'category': self.category}
 
     @staticmethod
     def _get_image_metadata(text):
