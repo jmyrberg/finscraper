@@ -25,13 +25,12 @@ class ISArticleSpider(FollowAndParseItemMixin, Spider):
             deny=('.*/tag/.*', '.*/haku/.*', '.*/reseptit/.*'),
             *args,
             **kwargs):
-        """Fetch IltaSanomat articles.
+        """Fetch IltaSanomat news articles.
         
         Args:
             category (str, list or None): Category to fetch articles from,    
                 meaning pages under 'is.fi/<category>/'. Defaults to None,
                 which fetches articles everywhere.
-            jobdir (str):
         """
         super(ISArticleSpider, self).__init__(*args, **kwargs)
         self.category = category
