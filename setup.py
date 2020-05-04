@@ -4,7 +4,7 @@ from distutils.core import setup
 setup(
     name='finscraper',
     packages=['finscraper'],
-    version='0.1.0',
+    version='0.1.0-alpha',
     license='MIT',
     description='Web scraping API for Finnish websites',
     author='Jesse Myrberg',
