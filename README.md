@@ -39,11 +39,7 @@ articles = loaded_spider.scrape(10).get()
 
 ## Documentation
 
-More thorough documentation work in progress - meanwhile, utilize the *help* -function to see allowed arguments, such as:
-
-```python
-help(ISArticle)
-```
+Proper documentation is still a work in progress, but meanwhile you may utilize the *help* -function, e.g. `help(ISArticle)`.
 
 ## Contributing
 
