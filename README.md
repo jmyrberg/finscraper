@@ -1,51 +1,51 @@
 # finscraper
 
-This library provides a Python API for downloading data from popular Finnish websites in a structured format.
+The library provides an easy-to-use API for fetching data from various Finnish websites, including:
 
-![TODO: Cover picture](docs/cover.png)
-
-Websites covered include:
-
-* News articles from IltaSanomat (is.fi)
+| Website  | URL | Type | Class |
+|---|---|---|---|---|
+| IltaSanomat  |  https://www.is.fi | News article | `finscraper.spiders.ISArticle` |
 
 
 ## Installation
 
-`pip install -r requirements.txt`
+`pip install finscraper`
 
-TODO: Make a pip package?
-
-## Documentation
-
-TODO: Sphinx documentation or similar
 
 ## Quickstart
 
-The library provides an easy-to-use API for fetching data from various Finnish websites. For example, fetching news articles from IltaSanomat and saving them into *items.json* can be done as follows:
+Fetch 10 news articles as a pandas DataFrame from IltaSanomat:
 
 ```python
 from finscraper.spiders import ISArticle
 
-spider = ISArticle(category='nhl',
-                   FEEDS={'items.json': {'format': 'json'}})
-spider.run()
+spider = ISArticle(category='ulkomaat').scrape(10)
+
+articles = spider.get()
 ```
 
-Please see example [Jupyter notebooks]() for more detailed reference:
+Save and load spider
 
-* [Scraping news articles from IltaSanomat](notebooks/scraping-news-articles-from-is.ipynb)
+```python
+spider_dir = spider.save()
 
-* [Continuing scraping from previous run](notebooks/continuing-scraping-from-previous-run.ipynb)
+loaded_spider = ISArticle.load(spider_dir)
 
+# Scrape 10 more articles and get all 20 articles scraped so far
+articles = loaded_spider.scrape(10).get()
+```
+
+## Documentation
+
+More thorough documentation is to be made, but meanwhile you may utilize the *help* -function to figure out the parameters, such as:
+
+```python
+help(ISArticle)
+```
 
 ## Contributing
 
-Web scrapers break when the formatting of websites change - **often**. Unfortunately, I can't make a promise to keep this repository up-to-date all by myself, and therefore I invite you to help when a spider stops working:
-
-1) Update the xpaths of a broken spider within the [finscraper/scrapy_spiders -module](finscraper/scrapy_spiders) to correspond to the latest version of the website to be scraped
-
-2) Create a pull request
-
+Web scrapers tend to break quite easily. Unfortunately, I can't make a promise to keep this repository up-to-date all by myself, and thus I invite you to make a pull request against the *dev* branch when a spider breaks.
 
 ---
 
