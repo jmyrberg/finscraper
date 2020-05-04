@@ -1,6 +1,8 @@
 # finscraper
 
-The library provides an easy-to-use API for fetching data from various Finnish websites, including:
+![finscraper cover](docs/cover.jpg)
+
+The library provides an easy-to-use API for fetching data from various Finnish websites:
 
 | Website     | URL               | Type         | Class                          |
 | ----------- | ----------------- | ------------ | ------------------------------ |
@@ -14,7 +16,7 @@ The library provides an easy-to-use API for fetching data from various Finnish w
 
 ## Quickstart
 
-Fetch 10 news articles as a pandas DataFrame from IltaSanomat:
+Fetch 10 news articles as pandas DataFrame from IltaSanomat:
 
 ```python
 from finscraper.spiders import ISArticle
