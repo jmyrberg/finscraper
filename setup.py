@@ -10,7 +10,7 @@ setup(
     author='Jesse Myrberg',
     author_email='jesse.myrberg@gmail.com',
     url='https://github.com/jmyrberg/finscraper',
-    download_url='https://github.com/user/reponame/archive/v0.1.0-alpha.tar.gz',
+    download_url='https://github.com/user/jmyrberg/archive/v0.1.0-alpha.tar.gz',
     keywords=['web', 'scraping', 'finnish'],
     install_requires=[
         'pandas>=1.0.3',
