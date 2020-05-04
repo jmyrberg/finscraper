@@ -72,9 +72,3 @@ def test_spider_clear():
     spider.clear()
     assert not Path(spider_save_path).exists()
     assert not Path(items_save_path).exists()
-
-
-def test_docstring():
-    spider = ISArticle()
-    doc = help(spider)
-    

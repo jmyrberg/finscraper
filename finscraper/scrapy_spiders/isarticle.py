@@ -20,23 +20,29 @@ class ISArticleSpider(FollowAndParseItemMixin, Spider):
     def __init__(
             self,
             category=None,
-            allow_domains=('is.fi'),
-            deny_domains=('ravit.is.fi'),
-            deny=('.*/tag/.*', '.*/haku/.*', '.*/reseptit/.*'),
+            follow_link_extractor=None,
+            item_link_extractor=None,
             *args,
             **kwargs):
         """Fetch IltaSanomat news articles.
         
         Args:
-            category (str, list or None): Category to fetch articles from,    
-                meaning pages under 'is.fi/<category>/'. Defaults to None,
-                which fetches articles everywhere.
+            category (str, list or None, optional): Category to fetch articles from,    
+                meaning pages under https://is.fi/<category>/*'. Defaults to
+                None, which fetches articles everywhere.
+            follow_link_extractor (scrapy.linkextractors.LinkExtractor or
+                None, optional): Link extractor to use for finding new article
+                pages. Defaults to None, which uses the default follow link
+                extractor.
+            item_link_extractor (scrapy.linkextractors.LinkExtractor or
+                None, optional): Link extractor for fetching article pages to
+                scrape. Defaults to None, which uses the default item link
+                extractor.
         """
         super(ISArticleSpider, self).__init__(*args, **kwargs)
         self.category = category
-        self.allow_domains = allow_domains
-        self.deny_domains = deny_domains
-        self.deny = deny
+        self.follow_link_extractor = follow_link_extractor
+        self.item_link_extractor = item_link_extractor
 
         if category is None:
             self.start_urls = ['https://www.is.fi']
@@ -53,20 +59,27 @@ class ISArticleSpider(FollowAndParseItemMixin, Spider):
                 self.allow_follow.append(rf'.*/{cat}/.*')
                 self.allow_items.append(rf'.*/{cat}/art\-[0-9]+\.html')
 
-        self.follow_link_extractor = LinkExtractor(
-            allow_domains=self.allow_domains,
-            allow=self.allow_follow,
-            deny=self.deny,
-            deny_domains=self.deny_domains,
-            canonicalize=True
-        )
-        self.item_link_extractor = LinkExtractor(
-            allow_domains=self.allow_domains,
-            allow=self.allow_items,
-            deny=self.deny,
-            deny_domains=self.deny_domains,
-            canonicalize=True
-        )
+        self.allow_domains = ('is.fi')
+        self.deny_domains = ('ravit.is.fi')
+        self.deny = ('.*/tag/.*', '.*/haku/.*', '.*/reseptit/.*',
+                     '.*/mainos/.*')
+
+        if self.follow_link_extractor is None:
+            self.follow_link_extractor = LinkExtractor(
+                allow_domains=self.allow_domains,
+                allow=self.allow_follow,
+                deny=self.deny,
+                deny_domains=self.deny_domains,
+                canonicalize=True
+            )
+        if self.item_link_extractor is None:
+            self.item_link_extractor = LinkExtractor(
+                allow_domains=self.allow_domains,
+                allow=self.allow_items,
+                deny=self.deny,
+                deny_domains=self.deny_domains,
+                canonicalize=True
+            )
 
     @staticmethod
     def _get_image_metadata(text):
