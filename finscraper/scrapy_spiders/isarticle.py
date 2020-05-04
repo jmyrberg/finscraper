@@ -109,6 +109,17 @@ class ISArticleSpider(FollowAndParseItemMixin, Spider):
 
 
 class ISArticleItem(Item):
+    """
+    Returned fields:
+        url (str): URL of the scraped web page.
+        time (int): UNIX timestamp of the scraping.
+        title (str): Title of the article.
+        ingress (str): Ingress of the article.
+        content (str): Contents of the article.
+        published (str): Publish time of the article.
+        author (str): Author of the article.
+        images (list of dict): Images of the article.
+    """
     url = Field(
         input_processor=Identity(),
         output_processor=TakeFirst()
