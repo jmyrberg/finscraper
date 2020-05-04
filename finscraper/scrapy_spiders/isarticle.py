@@ -13,7 +13,7 @@ from finscraper.scrapy_spiders.mixins import FollowAndParseItemMixin
 from finscraper.utils import strip_join
 
 
-class ISArticleSpider(FollowAndParseItemMixin, Spider):
+class _ISArticleSpider(FollowAndParseItemMixin, Spider):
     name = 'isarticle'
     custom_settings = {}
 
@@ -39,7 +39,7 @@ class ISArticleSpider(FollowAndParseItemMixin, Spider):
                 scrape. Defaults to None, which uses the default item link
                 extractor.
         """
-        super(ISArticleSpider, self).__init__(*args, **kwargs)
+        super(_ISArticleSpider, self).__init__(*args, **kwargs)
         self.category = category
         self.follow_link_extractor = follow_link_extractor
         self.item_link_extractor = item_link_extractor
@@ -91,7 +91,7 @@ class ISArticleSpider(FollowAndParseItemMixin, Spider):
         }
     
     def _parse_item(self, resp):
-        l = ItemLoader(item=ISArticleItem(), response=resp)
+        l = ItemLoader(item=_ISArticleItem(), response=resp)
         l.add_value('url', resp.url)
         l.add_value('time', int(time.time()))
         l.add_xpath('title', '//article//h1//text()')
@@ -108,7 +108,7 @@ class ISArticleSpider(FollowAndParseItemMixin, Spider):
         return l.load_item()
 
 
-class ISArticleItem(Item):
+class _ISArticleItem(Item):
     """
     Returned fields:
         url (str): URL of the scraped web page.
@@ -149,6 +149,6 @@ class ISArticleItem(Item):
         output_processor=TakeFirst()
     )
     images = Field(
-        input_processor=MapCompose(ISArticleSpider._get_image_metadata),
+        input_processor=MapCompose(_ISArticleSpider._get_image_metadata),
         output_processor=Identity()
     )

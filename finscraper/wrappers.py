@@ -46,7 +46,7 @@ def _run_spider_func(q, spider_cls, spider_params, settings):
         Queue.put(e)
 
 
-class SpiderWrapper:
+class _SpiderWrapper:
 
     def __init__(self, spider_cls, spider_params, jobdir=None):
         self.spider_cls = spider_cls
