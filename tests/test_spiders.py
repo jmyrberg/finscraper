@@ -6,7 +6,7 @@ import tempfile
 
 from pathlib import Path
 
-from finscraper.spiders import ISArticle
+from finscraper.spiders import ISArticle, ILArticle
 
 
 def test_ISArticle():
@@ -23,6 +23,25 @@ def test_ISArticle():
     # Save and load spider
     jobdir = spider.save()
     spider = ISArticle.load(jobdir)
+
+    df3 = spider.scrape(10).get()
+    assert len(df3) > len(df2)
+
+
+def test_ILArticle():
+    # Test scraping
+    spider = ILArticle().scrape(10)
+    df = spider.get()
+    assert len(df) >= 10
+    assert len(df.columns) == 8
+
+    # Test continuing scraping
+    df2 = spider.scrape(10).get()
+    assert len(df2) > len(df)
+
+    # Save and load spider
+    jobdir = spider.save()
+    spider = ILArticle.load(jobdir)
 
     df3 = spider.scrape(10).get()
     assert len(df3) > len(df2)

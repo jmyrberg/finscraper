@@ -4,9 +4,10 @@
 
 The library provides an easy-to-use API for fetching data from various Finnish websites:
 
-| Website     | URL               | Type         | Class                          |
-| ----------- | ----------------- | ------------ | ------------------------------ |
-| IltaSanomat | https://www.is.fi | News article | `finscraper.spiders.ISArticle` |
+| Website     | URL                      | Type         | Class                          |
+| ----------- | ------------------------ | ------------ | ------------------------------ |
+| IltaSanomat | https://www.is.fi        | News article | `finscraper.spiders.ISArticle` |
+| Iltalehti   | https://www.iltalehti.fi | News article | `finscraper.spiders.ILArticle` |
 
 
 ## Installation

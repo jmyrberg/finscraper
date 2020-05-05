@@ -4,6 +4,8 @@
 from textwrap import indent
 
 from finscraper.wrappers import _SpiderWrapper
+from finscraper.scrapy_spiders.ilarticle import _ILArticleSpider, \
+    _ILArticleItem
 from finscraper.scrapy_spiders.isarticle import _ISArticleSpider, \
     _ISArticleItem
 
@@ -28,6 +30,20 @@ class ISArticle(_SpiderWrapper):
                  item_link_extractor=None, jobdir=None):
         super(ISArticle, self).__init__(
             spider_cls=_ISArticleSpider,
+            spider_params=dict(
+                category=category,
+                follow_link_extractor=follow_link_extractor,
+                item_link_extractor=item_link_extractor
+            ),
+            jobdir=jobdir)
+
+
+class ILArticle(_SpiderWrapper):
+    __doc__ = _get_docstring(_ILArticleSpider, _ILArticleItem)
+    def __init__(self, category=None, follow_link_extractor=None,
+                 item_link_extractor=None, jobdir=None):
+        super(ILArticle, self).__init__(
+            spider_cls=_ILArticleSpider,
             spider_params=dict(
                 category=category,
                 follow_link_extractor=follow_link_extractor,
