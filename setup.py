@@ -5,7 +5,7 @@ with open('README.md', 'r') as f:
 
 setuptools.setup(
     name='finscraper',
-    version='0.0.1d',
+    version='0.0.1dev0',
     license='MIT',
     description='Web scraping API for Finnish websites',
     long_description=long_description,
