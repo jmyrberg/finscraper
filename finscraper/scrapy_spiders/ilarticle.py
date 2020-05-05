@@ -57,12 +57,12 @@ class _ILArticleSpider(FollowAndParseItemMixin, Spider):
             self.allow_items = []
             for cat in category:
                 self.start_urls.append(f'https://www.iltalehti.fi/{cat}')
-                self.allow_follow.append(rf'.*/{cat}/.*')
+                self.allow_follow.append(rf'.*{cat}.*')
                 self.allow_items.append(rf'.*/{cat}/{article_suffix}')
 
         self.allow_domains = ('iltalehti.fi')
         self.deny_domains = ()
-        self.deny = ()
+        self.deny = (r'.*/telkku/.*')
 
         if self.follow_link_extractor is None:
             self.follow_link_extractor = LinkExtractor(
