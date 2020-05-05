@@ -44,11 +44,11 @@ class _ILArticleSpider(FollowAndParseItemMixin, Spider):
         self.follow_link_extractor = follow_link_extractor
         self.item_link_extractor = item_link_extractor
 
-        article_suffix = r'.*/a/[0-9A-z\-]+'
+        article_suffix = r'a/[0-9A-z\-]+'
         if category is None:
             self.start_urls = ['https://www.iltalehti.fi']
             self.allow_follow = ()
-            self.allow_items = (article_suffix)
+            self.allow_items = (rf'.*/{article_suffix}')
         else:
             if type(category) == str:
                 category = [category]

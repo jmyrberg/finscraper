@@ -27,13 +27,15 @@ def _get_docstring(spider_cls, item_cls):
 class ISArticle(_SpiderWrapper):
     __doc__ = _get_docstring(_ISArticleSpider, _ISArticleItem)
     def __init__(self, category=None, follow_link_extractor=None,
-                 item_link_extractor=None, jobdir=None):
+                 item_link_extractor=None, allow_chromedriver=False,
+                 jobdir=None):
         super(ISArticle, self).__init__(
             spider_cls=_ISArticleSpider,
             spider_params=dict(
                 category=category,
                 follow_link_extractor=follow_link_extractor,
-                item_link_extractor=item_link_extractor
+                item_link_extractor=item_link_extractor,
+                allow_chromedriver=allow_chromedriver
             ),
             jobdir=jobdir)
 
