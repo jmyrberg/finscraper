@@ -11,8 +11,8 @@
 
 BOT_NAME = 'finscraper'
 
-SPIDER_MODULES = ['finscraper.spiders']
-NEWSPIDER_MODULE = 'finscraper.spiders'
+#SPIDER_MODULES = ['finscraper.scrapy_spiders']
+#NEWSPIDER_MODULE = 'finscraper.scrapy_spiders'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent

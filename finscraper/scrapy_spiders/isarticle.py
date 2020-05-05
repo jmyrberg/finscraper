@@ -15,13 +15,13 @@ from finscraper.utils import strip_join
 
 class _ISArticleSpider(FollowAndParseItemMixin, Spider):
     name = 'isarticle'
-    custom_settings = {}
 
     def __init__(
             self,
             category=None,
             follow_link_extractor=None,
             item_link_extractor=None,
+            allow_chromedriver=False,
             *args,
             **kwargs):
         """Fetch IltaSanomat news articles.
@@ -38,16 +38,32 @@ class _ISArticleSpider(FollowAndParseItemMixin, Spider):
                 None, optional): Link extractor for fetching article pages to
                 scrape. Defaults to None, which uses the default item link
                 extractor.
+            allow_chromedriver (bool, optional): Whether to allow the usage
+                of chrome headless browser or not. This is used when category
+                is not None, for ensuring that more than a few links can be
+                followed for a certain category.
+
+                Note: Your OS might ask for permission to use the chromedriver,
+                    which may require admin rights.
         """
-        super(_ISArticleSpider, self).__init__(*args, **kwargs)
+        if category is None or not allow_chromedriver:  # No follow js
+            follow_meta = None
+        else:  # Categroy defined --> follow links with js
+            follow_meta = {'run_js': True, 
+                           'run_js_wait_sec': 1,
+                           'scroll_to_bottom': True,
+                           'scroll_to_bottom_wait_sec': 0.1}
+        super(_ISArticleSpider, self).__init__(
+            *args, follow_meta=follow_meta, **kwargs)
         self.category = category
         self.follow_link_extractor = follow_link_extractor
         self.item_link_extractor = item_link_extractor
 
+        article_suffix = r'art\-[0-9]+\.html'
         if category is None:
             self.start_urls = ['https://www.is.fi']
             self.allow_follow = ()
-            self.allow_items = (r'.*/art\-[0-9]+\.html')
+            self.allow_items = (rf'.*/{article_suffix}')
         else:
             if type(category) == str:
                 category = [category]
@@ -56,13 +72,14 @@ class _ISArticleSpider(FollowAndParseItemMixin, Spider):
             self.allow_items = []
             for cat in category:
                 self.start_urls.append(f'https://www.is.fi/{cat}')
-                self.allow_follow.append(rf'.*/{cat}/.*')
-                self.allow_items.append(rf'.*/{cat}/art\-[0-9]+\.html')
+                self.start_urls.append(f'https://www.is.fi/haku/?query={cat}')
+                self.allow_follow.append(rf'.*{cat}.*')
+                self.allow_items.append(rf'.*/{cat}/{article_suffix}')
 
         self.allow_domains = ('is.fi')
         self.deny_domains = ('ravit.is.fi')
-        self.deny = ('.*/tag/.*', '.*/haku/.*', '.*/reseptit/.*',
-                     '.*/mainos/.*')
+        self.deny = (r'.*/tag/.*', r'.*/haku/.*', r'.*/reseptit/.*',
+                     r'.*/mainos/.*', r'.*/yritys/.*')
 
         if self.follow_link_extractor is None:
             self.follow_link_extractor = LinkExtractor(

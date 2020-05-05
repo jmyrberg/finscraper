@@ -5,7 +5,7 @@ with open('README.md', 'r') as f:
 
 setuptools.setup(
     name='finscraper',
-    version='0.0.1c',
+    version='0.0.1d',
     license='MIT',
     description='Web scraping API for Finnish websites',
     long_description=long_description,
@@ -16,7 +16,9 @@ setuptools.setup(
     keywords=['web', 'scraping', 'finnish'],
     install_requires=[
         'pandas>=1.0.3',
-        'scrapy>=2.1.0'
+        'selenium>=3.141.0',
+        'scrapy>=2.1.0',
+        'webdriver-manager>=2.4.0'
     ],
     packages=setuptools.find_packages(),
     classifiers=[

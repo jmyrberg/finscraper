@@ -9,7 +9,32 @@ from pathlib import Path
 from finscraper.spiders import ISArticle, ILArticle
 
 
-def test_ISArticle():
+def test_ISArticle_with_category():
+    # Test scraping, no chromedriver
+    spider = ISArticle('ulkomaat').scrape(20)
+    df = spider.get()
+    assert len(df) > 0
+    assert len(df.columns) == 8
+
+    # Test scraping with chromedriver
+    spider = ISArticle('ulkomaat', allow_chromedriver=True).scrape(20)
+    df = spider.get()
+    assert len(df) >= 20
+    assert len(df.columns) == 8
+
+    # Test continuing scraping
+    df2 = spider.scrape(10).get()
+    assert len(df2) > len(df)
+
+    # Save and load spider
+    jobdir = spider.save()
+    spider = ISArticle.load(jobdir)
+
+    df3 = spider.scrape(10).get()
+    assert len(df3) > len(df2)
+
+
+def test_ISArticle_no_params():
     # Test scraping
     spider = ISArticle().scrape(10)
     df = spider.get()
@@ -28,7 +53,26 @@ def test_ISArticle():
     assert len(df3) > len(df2)
 
 
-def test_ILArticle():
+def test_ILArticle_with_category():
+    # Test scraping
+    spider = ILArticle('politiikka').scrape(10)
+    df = spider.get()
+    assert len(df) >= 10
+    assert len(df.columns) == 8
+
+    # Test continuing scraping
+    df2 = spider.scrape(10).get()
+    assert len(df2) > len(df)
+
+    # Save and load spider
+    jobdir = spider.save()
+    spider = ILArticle.load(jobdir)
+
+    df3 = spider.scrape(10).get()
+    assert len(df3) > len(df2)
+
+
+def test_ILArticle_no_params():
     # Test scraping
     spider = ILArticle().scrape(10)
     df = spider.get()
