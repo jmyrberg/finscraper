@@ -1,4 +1,4 @@
-"""Module for ISArticle spider."""
+"""Module for ILArticle spider."""
 
 
 import time
@@ -13,8 +13,8 @@ from finscraper.scrapy_spiders.mixins import FollowAndParseItemMixin
 from finscraper.utils import strip_join
 
 
-class _ISArticleSpider(FollowAndParseItemMixin, Spider):
-    name = 'isarticle'
+class _ILArticleSpider(FollowAndParseItemMixin, Spider):
+    name = 'ilarticle'
     custom_settings = {}
 
     def __init__(
@@ -24,12 +24,12 @@ class _ISArticleSpider(FollowAndParseItemMixin, Spider):
             item_link_extractor=None,
             *args,
             **kwargs):
-        """Fetch IltaSanomat news articles.
+        """Fetch Iltalehti news articles.
         
         Args:
-            category (str, list or None, optional): Category to fetch articles from,    
-                meaning pages under https://is.fi/<category>/*'. Defaults to
-                None, which fetches articles everywhere.
+            category (str, list or None, optional): Category to fetch articles
+                from, meaning pages under https://iltalehti.fi/<category>/*'.
+                Defaults to None, which fetches articles everywhere.
             follow_link_extractor (scrapy.linkextractors.LinkExtractor or
                 None, optional): Link extractor to use for finding new article
                 pages. Defaults to None, which uses the default follow link
@@ -39,15 +39,16 @@ class _ISArticleSpider(FollowAndParseItemMixin, Spider):
                 scrape. Defaults to None, which uses the default item link
                 extractor.
         """
-        super(_ISArticleSpider, self).__init__(*args, **kwargs)
+        super(_ILArticleSpider, self).__init__(*args, **kwargs)
         self.category = category
         self.follow_link_extractor = follow_link_extractor
         self.item_link_extractor = item_link_extractor
 
+        article_suffix = r'.*/a/[0-9A-z\-]+'
         if category is None:
-            self.start_urls = ['https://www.is.fi']
+            self.start_urls = ['https://www.iltalehti.fi']
             self.allow_follow = ()
-            self.allow_items = (r'.*/art\-[0-9]+\.html')
+            self.allow_items = (article_suffix)
         else:
             if type(category) == str:
                 category = [category]
@@ -55,14 +56,13 @@ class _ISArticleSpider(FollowAndParseItemMixin, Spider):
             self.allow_follow = []
             self.allow_items = []
             for cat in category:
-                self.start_urls.append(f'https://www.is.fi/{cat}')
+                self.start_urls.append(f'https://www.iltalehti.fi/{cat}')
                 self.allow_follow.append(rf'.*/{cat}/.*')
-                self.allow_items.append(rf'.*/{cat}/art\-[0-9]+\.html')
+                self.allow_items.append(rf'.*/{cat}/{article_suffix}')
 
-        self.allow_domains = ('is.fi')
-        self.deny_domains = ('ravit.is.fi')
-        self.deny = ('.*/tag/.*', '.*/haku/.*', '.*/reseptit/.*',
-                     '.*/mainos/.*')
+        self.allow_domains = ('iltalehti.fi')
+        self.deny_domains = ()
+        self.deny = ()
 
         if self.follow_link_extractor is None:
             self.follow_link_extractor = LinkExtractor(
@@ -87,28 +87,30 @@ class _ISArticleSpider(FollowAndParseItemMixin, Spider):
         return {
             'src': sel.xpath('//img//@src').get(),
             'alt': sel.xpath('//img//@alt').get(),
-            'caption': strip_join(sel.xpath('//p//text()').getall())
+            'caption': sel.xpath(
+                '//div[contains(@class, "media-caption")]//text()').getall()
         }
     
     def _parse_item(self, resp):
-        l = ItemLoader(item=_ISArticleItem(), response=resp)
+        l = ItemLoader(item=_ILArticleItem(), response=resp)
         l.add_value('url', resp.url)
         l.add_value('time', int(time.time()))
-        l.add_xpath('title', '//article//h1//text()')
+        l.add_xpath('title',
+            '//article//h1[contains(@class, "article-headline")]//text()')
         l.add_xpath('ingress',
-            '//section//article//p[contains(@class, "ingress")]//text()')
+            '//article//div[contains(@class, "article-description")]//text()')
         l.add_xpath('content',
-            '//article//p[contains(@class, "body")]//text()')
+            '//article//div[contains(@class, "article-body")]//text()')
         l.add_xpath('published',
-            '//article//div[contains(@class, "timestamp")]//text()')
+            '//time//text()')
         l.add_xpath('author',
-            '//article//div[contains(@itemprop, "author")]//text()')
+            '//article//div[contains(@class, "author-name")]//text()')
         l.add_xpath('images',
-            '//section//article//div[contains(@class, "clearing-container")]')
+            '//article//div[contains(@class, "article-image")]')
         return l.load_item()
 
 
-class _ISArticleItem(Item):
+class _ILArticleItem(Item):
     """
     Returned fields:
         url (str): URL of the scraped web page.
@@ -149,6 +151,6 @@ class _ISArticleItem(Item):
         output_processor=TakeFirst()
     )
     images = Field(
-        input_processor=MapCompose(_ISArticleSpider._get_image_metadata),
+        input_processor=MapCompose(_ILArticleSpider._get_image_metadata),
         output_processor=Identity()
     )
