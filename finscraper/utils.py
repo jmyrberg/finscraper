@@ -1,4 +1,73 @@
-"""Module for utility functions."""
+"""Module for utility functions and classes."""
+
+
+import logging
+
+import pickle
+
+
+class QueueHandler(logging.Handler):
+
+    def __init__(self, queue):
+        """Sends events to a queue, allowing multiprocessing.
+
+        Args:
+            queue (multiprocessing.Queue): Queue object to use.
+
+        This handler checks for picklability before saving items into queue.
+        Modified from: https://gist.github.com/vsajip/591589
+        """
+        logging.Handler.__init__(self)
+        self.queue = queue
+
+    def _get_picklable_attrs(self, record):
+        # TODO: More performant way to do the same
+        attrdict = {}
+        for attr in vars(record):
+            value = getattr(record, attr)
+            try:
+                pickle.dumps(value)
+                attrdict[attr] = value
+            except AttributeError:
+                pass
+            except:
+                pass
+        
+        if type(record.args) == tuple:
+            attrdict['args'] = record.args
+        else:
+            args = {}
+            for attr, value in record.args.items():
+                try:
+                    pickle.dumps(value)
+                    args[attr] = value
+                except AttributeError:
+                    args[attr] = str(value)
+                    pass
+                except:
+                    pass
+            attrdict['args'] = args
+        new_record = logging.makeLogRecord(attrdict)
+        return new_record
+
+    def enqueue(self, record):
+        self.queue.put_nowait(record)
+
+    def prepare(self, record):
+        record = self._get_picklable_attrs(record)
+        self.format(record)
+        record.msg = record.message
+        record.args = None
+        record.exc_info = None
+        return record
+
+    def emit(self, record):
+        try:
+            self.enqueue(self.prepare(record))
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except:
+            self.handleError(record)
 
 
 def strip_join(text_list):

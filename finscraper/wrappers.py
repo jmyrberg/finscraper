@@ -2,17 +2,18 @@
 
 
 import json
+import logging
 import pickle
 import shutil
+import sys
 import tempfile
 import uuid
 
+from logging.handlers import QueueListener
 from multiprocessing import Process, Queue
 from pathlib import Path
 
 import pandas as pd
-
-from twisted.internet import reactor
 
 from scrapy import Request
 from scrapy.crawler import CrawlerProcess, CrawlerRunner
@@ -21,42 +22,86 @@ from scrapy.settings import Settings
 from scrapy.spiders import Spider
 from scrapy.utils.log import configure_logging
 
+from twisted.internet import reactor
+
+from finscraper.utils import QueueHandler
+
 
 def _run_func_as_process(func, *args, **kwargs):
+    settings = kwargs['settings'] if 'settings' in kwargs else {}
+    
+    # Setup logging
+    q_log = None
+    ql = None
+    if settings.get('LOG_ENABLED', False):
+        # (queuehandler --> listener --> root logger --> streamhandler)
+        handler = logging.StreamHandler()
+        q_log = Queue(-1)
+        ql = QueueListener(q_log, handler)
+        ql.start()
+        logger = logging.getLogger()
+        logger.setLevel(settings.get('LOG_LEVEL', logging.INFO))
+        handler.setFormatter(logging.Formatter(settings.get('LOG_FORMAT')))
+        logger.addHandler(handler)
+    
     q = Queue()
-    p = Process(target=func, args=(q, *args),
-                kwargs=kwargs)
+    p = Process(target=func, args=(q, q_log, *args), kwargs=kwargs)
     p.start()
     result = q.get()
     p.join()
 
-    if result is not None:
+    if ql:
+        ql.stop()
+
+    if isinstance(result, BaseException):
         raise result
 
 
-def _run_spider_func(q, spider_cls, spider_params, settings):
+def _run_spider_func(q, q_log, spider_cls, spider_params, settings):
     try:
-        configure_logging()
+        configure_logging(settings, install_root_handler=True)
+        if q_log is not None:
+            # Setup logging (worker --> queuehandler --> root logger)
+            qh = QueueHandler(q_log)
+            logger = logging.getLogger()
+            logger.setLevel(settings.get('LOG_LEVEL', logging.INFO))
+            qh.setLevel(settings.get('LOG_LEVEL', logging.INFO))
+            qh.setFormatter(logging.Formatter(settings.get('LOG_FORMAT')))
+            logger.addHandler(qh)
+
+        # Start crawling
         runner = CrawlerRunner(settings)
         deferred = runner.crawl(spider_cls, **spider_params)
         deferred.addBoth(lambda _: reactor.stop())
         reactor.run()
         q.put(None)
     except Exception as e:
-        Queue.put(e)
+        q.put(e)
 
 
 class _SpiderWrapper:
+    _log_levels = {
+        'debug': logging.DEBUG,
+        'info': logging.INFO,
+        'warn': logging.WARN,
+        'error': logging.ERROR,
+        'critical': logging.CRITICAL
+    }
 
-    def __init__(self, spider_cls, spider_params, jobdir=None):
+    def __init__(self, spider_cls, spider_params, jobdir=None,
+                 log_level=None):
         self.spider_cls = spider_cls
         self.spider_params = spider_params
 
         if jobdir is None:
             self._jobdir = Path(tempfile.gettempdir()) / str(uuid.uuid4())
-        else:
+        elif type(jobdir) == str:
             self._jobdir = Path(jobdir)
+        else:
+            raise ValueError(f'Jobdir {jobdir} is not of type str or None')
         self._jobdir.mkdir(parents=True, exist_ok=True)
+
+        self.log_level = log_level
         
         self._items_save_path = self._jobdir / 'items.jl'
         self._spider_save_path = self._jobdir / 'spider.pkl'
@@ -70,6 +115,21 @@ class _SpiderWrapper:
         return str(self._jobdir)
 
     @property
+    def log_level(self):
+        return self._log_level
+
+    @log_level.setter
+    def log_level(self, log_level):
+        if log_level is None:
+            self._log_level = log_level
+        elif (type(log_level) == str 
+              and log_level.strip().lower() in self._log_levels):
+            self._log_level = self._log_levels[log_level.strip().lower()]
+        else:
+            raise ValueError(
+                    f'Log level should be in {self._log_levels.keys()}')
+
+    @property
     def items_save_path(self):
         return str(self._items_save_path)
 
@@ -79,22 +139,27 @@ class _SpiderWrapper:
 
     def _run_spider(self, itemcount=10, timeout=120, pagecount=0, errorcount=0,
                     settings=None):
-        settings_ = Settings()
-        settings_.setmodule('finscraper.settings', priority='project')
-        settings_['JOBDIR'] = self.jobdir
-        settings_['FEEDS'] = {self.items_save_path: {'format': 'jsonlines'}}
-        settings_['CLOSESPIDER_ITEMCOUNT'] = itemcount
-        settings_['CLOSESPIDER_TIMEOUT'] = timeout
-        settings_['CLOSESPIDER_PAGECOUNT'] = pagecount
-        settings_['CLOSESPIDER_ERRORCOUNT'] = errorcount
+        _settings = Settings()
+        _settings.setmodule('finscraper.settings', priority='project')
+        _settings['JOBDIR'] = self.jobdir
+        _settings['FEEDS'] = {self.items_save_path: {'format': 'jsonlines'}}
+        _settings['CLOSESPIDER_ITEMCOUNT'] = itemcount
+        _settings['CLOSESPIDER_TIMEOUT'] = timeout
+        _settings['CLOSESPIDER_PAGECOUNT'] = pagecount
+        _settings['CLOSESPIDER_ERRORCOUNT'] = errorcount
+        if self.log_level is None:
+            _settings['LOG_ENABLED'] = False
+        else:
+            _settings['LOG_LEVEL'] = self._log_level
+            _settings['LOG_ENABLED'] = True
         if settings is not None:
-            settings_.update(settings)
+            _settings.update(settings)
         try:
             _run_func_as_process(
                 func=_run_spider_func,
                 spider_cls=self.spider_cls,
                 spider_params=self.spider_params,
-                settings=settings_
+                settings=_settings
             )
         except KeyboardInterrupt:
             pass

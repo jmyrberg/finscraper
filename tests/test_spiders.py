@@ -2,6 +2,7 @@
 
 
 import json
+import logging
 import tempfile
 
 from pathlib import Path
@@ -79,7 +80,7 @@ def test_ILArticle_no_params():
     assert len(df) >= 10
     assert len(df.columns) == 8
 
-    # Test continuing scraping
+    # Test continuing scraping  
     df2 = spider.scrape(10).get()
     assert len(df2) > len(df)
 
@@ -135,3 +136,33 @@ def test_spider_clear():
     spider.clear()
     assert not Path(spider_save_path).exists()
     assert not Path(items_save_path).exists()
+
+
+def test_spider_logging():
+    # Yes attribute "None", no settings
+    spider = ISArticle(log_level=None)
+    spider.scrape(1)
+
+    # Yes attribute, no settings
+    spider = ISArticle(log_level='info')
+    spider.scrape(1)
+    assert True
+
+    # No attribute, yes settings
+    spider = ISArticle(log_level=None)
+    spider.scrape(1, settings={'LOG_LEVEL': logging.DEBUG})
+    assert True
+
+    spider = ISArticle(log_level='info')
+    spider.scrape(1, settings={'LOG_ENABLED': False})
+    assert True
+
+    # Attribute set
+    try:
+        spider.log_level = 'test'
+    except ValueError:
+        assert True
+    except:
+        assert False
+    spider.log_level = 'info'
+    assert spider.log_level == logging.INFO
