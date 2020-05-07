@@ -10,11 +10,14 @@ from pathlib import Path
 from finscraper.spiders import ISArticle, ILArticle
 
 
+# TODO: Implement utility test function that performs common Spider checks
+
+
 def test_ISArticle_with_category():
     # Test scraping, no chromedriver
     spider = ISArticle('ulkomaat').scrape(20)
     df = spider.get()
-    assert len(df) > 0
+    assert len(df) >= 20
     assert len(df.columns) == 8
 
     # Test scraping with chromedriver
@@ -25,33 +28,33 @@ def test_ISArticle_with_category():
 
     # Test continuing scraping
     df2 = spider.scrape(10).get()
-    assert len(df2) > len(df)
+    assert len(df2) >= len(df) + 10
 
     # Save and load spider
     jobdir = spider.save()
     spider = ISArticle.load(jobdir)
 
     df3 = spider.scrape(10).get()
-    assert len(df3) > len(df2)
+    assert len(df3) >= len(df2) + 10
 
 
 def test_ISArticle_no_params():
     # Test scraping
     spider = ISArticle().scrape(10)
     df = spider.get()
-    assert len(df) >= 10
+    assert len(df) == 10
     assert len(df.columns) == 8
 
-    # Test continuing scraping
+    # Test continuing scraping (poor results, no driver)
     df2 = spider.scrape(10).get()
-    assert len(df2) > len(df)
+    assert len(df2) >= len(df) + 10
 
     # Save and load spider
     jobdir = spider.save()
     spider = ISArticle.load(jobdir)
 
     df3 = spider.scrape(10).get()
-    assert len(df3) > len(df2)
+    assert len(df3) >= len(df2) + 10
 
 
 def test_ILArticle_with_category():
@@ -63,14 +66,14 @@ def test_ILArticle_with_category():
 
     # Test continuing scraping
     df2 = spider.scrape(10).get()
-    assert len(df2) > len(df)
+    assert len(df2) >= len(df) + 10
 
     # Save and load spider
     jobdir = spider.save()
     spider = ILArticle.load(jobdir)
 
     df3 = spider.scrape(10).get()
-    assert len(df3) > len(df2)
+    assert len(df3) >= len(df2) + 10
 
 
 def test_ILArticle_no_params():
@@ -82,14 +85,14 @@ def test_ILArticle_no_params():
 
     # Test continuing scraping  
     df2 = spider.scrape(10).get()
-    assert len(df2) > len(df)
+    assert len(df2) >= len(df) + 10
 
     # Save and load spider
     jobdir = spider.save()
     spider = ILArticle.load(jobdir)
 
     df3 = spider.scrape(10).get()
-    assert len(df3) > len(df2)
+    assert len(df3) >= len(df2) + 10
 
 
 def test_spider_save_load_with_jobdir():
@@ -166,3 +169,18 @@ def test_spider_logging():
         assert False
     spider.log_level = 'info'
     assert spider.log_level == logging.INFO
+
+    # TODO: Test the output
+
+
+def test_progress_bar():
+    # Progress bas true by default
+    spider = ILArticle()
+    spider.scrape(1)
+    assert spider.progress_bar == True
+
+    # Progress bar disabled, when log level given
+    spider = ILArticle(log_level='info')
+    assert spider.progress_bar == False
+
+    # TODO: Test the output

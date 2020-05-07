@@ -2,6 +2,7 @@
 
 
 from scrapy import Request
+from scrapy.exceptions import CloseSpider
 
 
 class FollowAndParseItemMixin:
@@ -13,6 +14,7 @@ class FollowAndParseItemMixin:
             item pages from.
         3) `parse_item` function: Parse item from response.
     """
+    itemcount = 0
     item_link_extractor = None
     follow_link_extractor = None
     custom_settings = {
@@ -34,8 +36,13 @@ class FollowAndParseItemMixin:
 
     def parse(self, resp, to_parse=False):
         """Parse items and follow links based on defined link extractors."""
+        if (self.itemcount and 
+            self.itemcount == self.settings.get('CLOSESPIDER_ITEMCOUNT', 0)):
+                raise CloseSpider
+
         if to_parse:
             yield self._parse_item(resp)
+            self.itemcount += 1
 
         # Parse items and further on extract links from those pages
         item_links = self.item_link_extractor.extract_links(resp)

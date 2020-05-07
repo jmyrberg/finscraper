@@ -27,25 +27,34 @@ from twisted.internet import reactor
 from finscraper.utils import QueueHandler
 
 
-def _run_func_as_process(func, *args, **kwargs):
-    settings = kwargs['settings'] if 'settings' in kwargs else {}
-    
-    # Setup logging
+def _run_as_process(func, spider_cls, spider_params, settings):
+    # Setup logging / progress bar
+    # (queuehandler --> listener --> root logger --> streamhandler)
+    progress_bar_enabled = settings['PROGRESS_BAR_ENABLED']
+    log_enabled = settings['LOG_ENABLED']
+    log_stdout = settings['LOG_STDOUT']
     q_log = None
     ql = None
-    if settings.get('LOG_ENABLED', False):
-        # (queuehandler --> listener --> root logger --> streamhandler)
+    if log_enabled or progress_bar_enabled:
         handler = logging.StreamHandler()
+        if progress_bar_enabled:
+            handler.terminator = ''
+            handler.setFormatter(logging.Formatter('%(message)s'))
+        else:
+            handler.setFormatter(logging.Formatter(settings.get('LOG_FORMAT')))
+
         q_log = Queue(-1)
         ql = QueueListener(q_log, handler)
         ql.start()
+
         logger = logging.getLogger()
-        logger.setLevel(settings.get('LOG_LEVEL', logging.INFO))
-        handler.setFormatter(logging.Formatter(settings.get('LOG_FORMAT')))
+        logger.setLevel(settings.get('LOG_LEVEL'))
         logger.addHandler(handler)
     
+    # Start function as a separate process
     q = Queue()
-    p = Process(target=func, args=(q, q_log, *args), kwargs=kwargs)
+    p = Process(target=func,
+                args=(q, q_log, spider_cls, spider_params, settings))
     p.start()
     result = q.get()
     p.join()
@@ -59,13 +68,15 @@ def _run_func_as_process(func, *args, **kwargs):
 
 def _run_spider_func(q, q_log, spider_cls, spider_params, settings):
     try:
-        configure_logging(settings, install_root_handler=True)
+        configure_logging(settings, install_root_handler=False)
         if q_log is not None:
             # Setup logging (worker --> queuehandler --> root logger)
+            if not settings['LOG_ENABLED']:  # Disables STDOUT :o
+                logging.getLogger('scrapy').propagate = False
             qh = QueueHandler(q_log)
             logger = logging.getLogger()
-            logger.setLevel(settings.get('LOG_LEVEL', logging.INFO))
-            qh.setLevel(settings.get('LOG_LEVEL', logging.INFO))
+            logger.setLevel(settings.get('LOG_LEVEL'))
+            qh.setLevel(settings.get('LOG_LEVEL'))
             qh.setFormatter(logging.Formatter(settings.get('LOG_FORMAT')))
             logger.addHandler(qh)
 
@@ -89,7 +100,7 @@ class _SpiderWrapper:
     }
 
     def __init__(self, spider_cls, spider_params, jobdir=None,
-                 log_level=None):
+                 progress_bar=True, log_level=None):
         self.spider_cls = spider_cls
         self.spider_params = spider_params
 
@@ -102,6 +113,7 @@ class _SpiderWrapper:
         self._jobdir.mkdir(parents=True, exist_ok=True)
 
         self.log_level = log_level
+        self.progress_bar = progress_bar and self.log_level is None
         
         self._items_save_path = self._jobdir / 'items.jl'
         self._spider_save_path = self._jobdir / 'spider.pkl'
@@ -130,6 +142,17 @@ class _SpiderWrapper:
                     f'Log level should be in {self._log_levels.keys()}')
 
     @property
+    def progress_bar(self):
+        return self._progress_bar
+
+    @progress_bar.setter
+    def progress_bar(self, progress_bar):
+        if type(progress_bar) == bool:
+            self._progress_bar = progress_bar
+        else:
+            raise ValueError(f'Progress bar "{progress_bar}" not boolean')
+
+    @property
     def items_save_path(self):
         return str(self._items_save_path)
 
@@ -141,21 +164,27 @@ class _SpiderWrapper:
                     settings=None):
         _settings = Settings()
         _settings.setmodule('finscraper.settings', priority='project')
+        
         _settings['JOBDIR'] = self.jobdir
         _settings['FEEDS'] = {self.items_save_path: {'format': 'jsonlines'}}
+        
         _settings['CLOSESPIDER_ITEMCOUNT'] = itemcount
         _settings['CLOSESPIDER_TIMEOUT'] = timeout
         _settings['CLOSESPIDER_PAGECOUNT'] = pagecount
         _settings['CLOSESPIDER_ERRORCOUNT'] = errorcount
-        if self.log_level is None:
-            _settings['LOG_ENABLED'] = False
-        else:
-            _settings['LOG_LEVEL'] = self._log_level
-            _settings['LOG_ENABLED'] = True
+        
+        _settings['LOG_STDOUT'] = True
+        _settings['LOG_LEVEL'] = self.log_level or logging.NOTSET
+        _settings['LOG_ENABLED'] = self.log_level is not None
+        # Logging dominates progress bar
+        _settings['PROGRESS_BAR_ENABLED'] = self.progress_bar
+        
+        # Will always be prioritized --> conflicts are possible
         if settings is not None:
             _settings.update(settings)
+        
         try:
-            _run_func_as_process(
+            _run_as_process(
                 func=_run_spider_func,
                 spider_cls=self.spider_cls,
                 spider_params=self.spider_params,

@@ -1,9 +1,28 @@
 """Module for utility functions and classes."""
 
 
+import io
 import logging
 
 import pickle
+import re
+
+from tqdm.auto import tqdm
+
+
+class TqdmLogger(io.StringIO):
+
+    def __init__(self, logger):
+        self.logger = logger
+        self.buf = ''
+        self.ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+
+    def write(self, buf):
+        self.buf = buf
+
+    def flush(self):
+        if self.buf.strip() != '':
+            self.logger.log(logging.WARN, self.buf)
 
 
 class QueueHandler(logging.Handler):

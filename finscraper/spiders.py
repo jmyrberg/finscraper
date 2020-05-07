@@ -20,7 +20,7 @@ log_level (str or None, optional): Level of logging to display.
     When None, logging is disabled. Defaults to None. Note that this parameter
     can be overriden through Scrapy settings (LOG_LEVEL, LOG_ENABLED) when
     calling the `scrape` -method.
-'''
+'''  # TODO: Add progress_bar
 
 
 def _get_docstring(spider_cls, item_cls):
@@ -33,7 +33,7 @@ class ISArticle(_SpiderWrapper):
     __doc__ = _get_docstring(_ISArticleSpider, _ISArticleItem)
     def __init__(self, category=None, follow_link_extractor=None,
                  item_link_extractor=None, allow_chromedriver=False,
-                 jobdir=None, log_level=None):
+                 jobdir=None, progress_bar=True, log_level=None):
         super(ISArticle, self).__init__(
             spider_cls=_ISArticleSpider,
             spider_params=dict(
@@ -43,13 +43,15 @@ class ISArticle(_SpiderWrapper):
                 allow_chromedriver=allow_chromedriver
             ),
             jobdir=jobdir,
+            progress_bar=progress_bar,
             log_level=log_level)
 
 
 class ILArticle(_SpiderWrapper):
     __doc__ = _get_docstring(_ILArticleSpider, _ILArticleItem)
     def __init__(self, category=None, follow_link_extractor=None,
-                 item_link_extractor=None, jobdir=None, log_level=None):
+                 item_link_extractor=None, jobdir=None, progress_bar=True,
+                 log_level=None):
         super(ILArticle, self).__init__(
             spider_cls=_ILArticleSpider,
             spider_params=dict(
@@ -58,4 +60,5 @@ class ILArticle(_SpiderWrapper):
                 item_link_extractor=item_link_extractor
             ),
             jobdir=jobdir,
+            progress_bar=progress_bar,
             log_level=log_level)
