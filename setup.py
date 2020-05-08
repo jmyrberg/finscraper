@@ -1,11 +1,13 @@
 import setuptools
 
+
 with open('README.md', 'r') as f:
     long_description = f.read()
 
+
 setuptools.setup(
     name='finscraper',
-    version='0.0.1dev0',
+    version='0.0.1dev1',
     license='MIT',
     description='Web scraping API for Finnish websites',
     long_description=long_description,
@@ -18,6 +20,7 @@ setuptools.setup(
         'pandas>=1.0.3',
         'selenium>=3.141.0',
         'scrapy>=2.1.0',
+        'tqdm>=4.46.0',
         'webdriver-manager>=2.4.0'
     ],
     packages=setuptools.find_packages(),

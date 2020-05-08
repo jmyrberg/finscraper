@@ -60,6 +60,7 @@ ROBOTSTXT_OBEY = True
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
 EXTENSIONS = {
     'scrapy.extensions.closespider.CloseSpider': 200,
+    'finscraper.extensions.ProgressBar': 500
 }
 
 # Configure item pipelines
