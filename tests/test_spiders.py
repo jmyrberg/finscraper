@@ -178,9 +178,12 @@ def test_progress_bar():
     spider = ILArticle()
     spider.scrape(1)
     assert spider.progress_bar == True
+    assert len(spider.get()) > 0
 
     # Progress bar disabled, when log level given
     spider = ILArticle(log_level='info')
+    spider.scrape(1)
     assert spider.progress_bar == False
+    assert len(spider.get()) > 0
 
     # TODO: Test the output

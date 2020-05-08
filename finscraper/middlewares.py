@@ -21,16 +21,22 @@ webdriver_manager.utils.console = console
 from webdriver_manager.chrome import ChromeDriverManager
 
 
-class DownloaderMiddlewareWithJs(object):
+class DownloaderMiddlewareWithJs:
+
+    def __init__(self, settings):
+        self.log_enabled = settings.get('LOG_ENABLED', False)
+        self.log_level = settings.get('LOG_LEVEL', logging.NOTSET)
+        self.progress_bar_enabled = settings.get('PROGRESS_BAR_ENABLED', False)
 
     @classmethod
     def from_crawler(cls, crawler):
-        middleware = cls()
+        middleware = cls(crawler.settings)
         crawler.signals.connect(middleware.spider_opened,
                                 signals.spider_opened)
         crawler.signals.connect(middleware.spider_closed,
                                 signals.spider_closed)
-        return middleware  
+        
+        return middleware
 
     def spider_opened(self, spider):
         options = Options()
@@ -38,6 +44,12 @@ class DownloaderMiddlewareWithJs(object):
         options.add_argument("--disable-extensions")
         options.add_argument("--disable-gpu")
         #options.add_argument("--no-sandbox") # linux only
+        if self.progress_bar_enabled:
+            options.add_argument('--disable-logging')
+            for name in ['selenium.webdriver.remote.remote_connection',
+                         'requests', 'urllib3']:
+                logging.getLogger(name).propagate = False
+
         self.driver = webdriver.Chrome(ChromeDriverManager().install(),
                                        options=options)
 

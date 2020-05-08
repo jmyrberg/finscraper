@@ -21,7 +21,7 @@ class _ISArticleSpider(FollowAndParseItemMixin, Spider):
             category=None,
             follow_link_extractor=None,
             item_link_extractor=None,
-            allow_chromedriver=False,
+            allow_chromedriver=False,  # TODO: Allow set through property
             *args,
             **kwargs):
         """Fetch IltaSanomat news articles.
