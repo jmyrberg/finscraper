@@ -2,7 +2,6 @@
 
 
 import logging
-logger = logging.getLogger(__name__)
 
 import time
 
@@ -65,11 +64,9 @@ class DownloaderMiddlewareWithJs:
         
         request.meta['driver'] = self.driver
         if run_js or scroll_to_bottom:
-            logger.debug('Loading site with javascript')
             self.driver.get(request.url)  # TODO: Implement conditional wait
             time.sleep(run_js_wait_sec)
             if scroll_to_bottom:
-                logger.debug('Scrolling to bottom')
                 self.driver.execute_script(
                     'window.scrollTo(0, document.body.scrollHeight);')
                 time.sleep(scroll_to_bottom_wait_sec)
