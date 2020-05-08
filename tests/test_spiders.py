@@ -59,9 +59,9 @@ def test_ISArticle_no_params():
 
 def test_ILArticle_with_category():
     # Test scraping
-    spider = ILArticle('politiikka').scrape(10)
+    spider = ILArticle('ulkomaat').scrape(5)
     df = spider.get()
-    assert len(df) >= 10
+    assert len(df) >= 5
     assert len(df.columns) == 8
 
     # Test continuing scraping
@@ -173,7 +173,7 @@ def test_spider_logging():
     # TODO: Test the output
 
 
-def test_progress_bar():
+def test_spider_progress_bar():
     # Progress bas true by default
     spider = ILArticle()
     spider.scrape(1)
