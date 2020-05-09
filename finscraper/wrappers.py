@@ -91,6 +91,7 @@ def _run_spider_func(q, q_log, spider_cls, spider_params, settings):
 
 
 class _SpiderWrapper:
+    """Provide common methods and attributes for all spiders."""
     _log_levels = {
         'debug': logging.DEBUG,
         'info': logging.INFO,
@@ -124,10 +125,18 @@ class _SpiderWrapper:
 
     @property
     def jobdir(self):
+        """Working directory of the spider.
+        
+        Can be changed after initialization of a spider.
+        """
         return str(self._jobdir)
 
     @property
     def log_level(self):
+        """Logging level of the spider.
+        
+        This attribute can be changed after initialization of a spider.
+        """
         return self._log_level
 
     @log_level.setter
@@ -143,6 +152,10 @@ class _SpiderWrapper:
 
     @property
     def progress_bar(self):
+        """Whether progress bar is enabled or not.
+        
+        Can be changed after initialization of a spider.
+        """
         return self._progress_bar
 
     @progress_bar.setter
@@ -154,10 +167,18 @@ class _SpiderWrapper:
 
     @property
     def items_save_path(self):
+        """Save of path of the scraped items.
+        
+        Cannot be changed after initialization of a spider.
+        """
         return str(self._items_save_path)
 
     @property
     def spider_save_path(self):
+        """Save path of the spider.
+        
+        Cannot be changed after initialization of a spider.
+        """
         return str(self._spider_save_path)
 
     def _run_spider(self, itemcount=10, timeout=120, pagecount=0, errorcount=0,
@@ -220,8 +241,11 @@ class _SpiderWrapper:
                 in ['df', 'list']. Defaults to 'df'.
 
         Returns:
-            DataFrame, when fmt = 'df'.
-            List of scraped items, when fmt = 'list'.
+            If ``fmt = 'df'``, DataFrame of scraped items.
+            If ``fmt = 'list'``, list of dict of scraped items.
+
+        Raises:
+            ValueError: If ``fmt`` not in allowed values.
         """
         if fmt not in ['df', 'list']:
             ValueError(f'Format {fmt} should be in ["df", "list"]')
@@ -236,10 +260,10 @@ class _SpiderWrapper:
             return pd.DataFrame(jsonlines)
     
     def save(self):
-        """Save spider in `jobdir` for later use.
+        """Save spider in ``jobdir`` for later use.
         
         Returns:
-            Path to job directory as a string.
+            str: Path to job directory.
         """
         save_tuple = (self.spider_cls, self.spider_params, self.jobdir)
         with open(self.spider_save_path, 'wb') as f:
@@ -248,14 +272,21 @@ class _SpiderWrapper:
 
     @classmethod
     def load(cls, jobdir):
-        """Load spider from `jobdir`."""
+        """Load existing spider from ``jobdir``.
+        
+        Args:
+            jobdir (str): Path to job directory.
+        
+        Returns:
+            Spider loaded from job directory.
+        """
         expected_path = Path(jobdir) / 'spider.pkl'
         with open(expected_path, 'rb') as f:
             (spider_cls, spider_params, jobdir) = pickle.load(f)
         return cls(jobdir=jobdir, **spider_params)
 
     def clear(self):
-        """Clear contents of `jobdir`."""
+        """Clear contents of ``jobdir``."""
         if self._jobdir.exists():
             shutil.rmtree(self._jobdir)
         self._jobdir.mkdir(parents=True, exist_ok=True)

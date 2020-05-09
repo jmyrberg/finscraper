@@ -1,14 +1,15 @@
 # finscraper
 
-![finscraper cover](docs/cover.jpg)
+![finscraper cover](https://github.com/jmyrberg/finscraper/blob/master/docs/cover.jpg?raw=true)
 
 The library provides an easy-to-use API for fetching data from various Finnish websites:
 
-| Website     | URL                      | Type         | Class                          |
+| Website     | URL                      | Type         | Spider API class               |
 | ----------- | ------------------------ | ------------ | ------------------------------ |
 | IltaSanomat | https://www.is.fi        | News article | `finscraper.spiders.ISArticle` |
 | Iltalehti   | https://www.iltalehti.fi | News article | `finscraper.spiders.ILArticle` |
 
+Documentation is available at [https://www.finscraper.readthedocs.io](https://www.finscraper.readthedocs.io).
 
 ## Installation
 
@@ -17,34 +18,21 @@ The library provides an easy-to-use API for fetching data from various Finnish w
 
 ## Quickstart
 
-Fetch 10 news articles as pandas DataFrame from IltaSanomat:
+Fetch 10 news articles as a pandas DataFrame from [IltaSanomat](https://is.fi):
 
 ```python
 from finscraper.spiders import ISArticle
 
-spider = ISArticle(category='ulkomaat').scrape(10)
+spider = ISArticle().scrape(10)
 
 articles = spider.get()
 ```
 
-Save and load spider
-
-```python
-spider_dir = spider.save()
-
-loaded_spider = ISArticle.load(spider_dir)
-
-# Scrape 10 more articles and get all 20 articles scraped so far
-articles = loaded_spider.scrape(10).get()
-```
-
-## Documentation
-
-Proper documentation is still a work in progress, but meanwhile you may utilize the *help* -function, e.g. `help(ISArticle)`.
-
 ## Contributing
 
-Web scrapers tend to break quite easily. Unfortunately, I can't make a promise to keep this repository up-to-date all by myself, and thus I invite you to make a pull request against the *dev* branch when a spider breaks.
+When websites change, spiders tend to break. I can't make a promise to keep this
+repository up-to-date all by myself - pull requests are more than welcome!
+
 
 ---
 

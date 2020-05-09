@@ -1,14 +1,18 @@
-.. finscraper documentation master file, created by
-   sphinx-quickstart on Fri May  8 23:27:48 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+
+.. include:: readme.rst
 
 .. toctree::
+   :caption: Documentation
    :maxdepth: 2
-   :caption: finscraper documentation:
 
+   Getting started <readme.rst>
    installation
    spiders
-   examples
-   modules
+   usage
 
+
+.. toctree::
+   :caption: API
+   :maxdepth: 4
+
+   finscraper

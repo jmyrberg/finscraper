@@ -11,31 +11,26 @@ from tqdm.auto import tqdm
 
 
 class TqdmLogger(io.StringIO):
-
+    """File-like object that redirects buffer to stdout."""
     def __init__(self, logger):
         self.logger = logger
         self.buf = ''
-        self.ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
 
     def write(self, buf):
         self.buf = buf
 
     def flush(self):
         if self.buf.strip() != '':
-            self.logger.log(logging.WARN, self.buf)
+            self.logger.log(logging.DEBUG, self.buf)
 
 
 class QueueHandler(logging.Handler):
+    """Sends events to a queue, allowing multiprocessing.
 
-    def __init__(self, queue):
-        """Sends events to a queue, allowing multiprocessing.
-
-        Args:
-            queue (multiprocessing.Queue): Queue object to use.
-
-        This handler checks for picklability before saving items into queue.
-        Modified from: https://gist.github.com/vsajip/591589
-        """
+    This handler checks for picklability before saving items into queue.
+    Modified from: https://gist.github.com/vsajip/591589
+    """
+    def __init__(self, queue): 
         logging.Handler.__init__(self)
         self.queue = queue
 

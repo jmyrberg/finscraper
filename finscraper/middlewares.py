@@ -1,4 +1,4 @@
-"""Module for Scrapy middleware."""
+"""Module for Scrapy middlewares."""
 
 
 import logging
@@ -21,7 +21,18 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 
 class DownloaderMiddlewareWithJs:
+    """Middleware that runs JavaScript.
+        
+    Usage via ``scrapy.Request.meta``:
+        * run_js (bool): Whether to run JavaScript or not.
+        * run_js_wait_sec (int): How many seconds to wait when rendering the \
+        page.
+        * scroll_to_bottom (bool): Whether to scroll page to bottom or not.
+        * scroll_to_bottom_wait_sec (int): How many seconds to wait after \
+        scrolling to bottom.
 
+    If meta is not used, the request is just passed through.
+    """
     def __init__(self, settings):
         self.log_enabled = settings.get('LOG_ENABLED', False)
         self.log_level = settings.get('LOG_LEVEL', logging.NOTSET)

@@ -8,11 +8,18 @@ from scrapy.exceptions import CloseSpider
 class FollowAndParseItemMixin:
     """Parse items and follow links based on defined link extractors.
     
-    When using this mixin, the following needs to be defined when inheriting:
-        1) `item_link_extractor` attribute: Extract links to parse items from.
-        2) `follow_link_extractor` attribute: Extract links to follow and find
-            item pages from.
-        3) `parse_item` function: Parse item from response.
+    The following needs to be defined when inheriting:
+        1) ``item_link_extractor`` -attribute: LinkExtractor that defines \
+            the links to parse items from.
+        2) ``follow_link_extractor`` -attribute: LinkExtractor that defines \
+            the links to follow and find item pages from.
+        3) ``parse_item`` -function: Parses the item from response.
+
+    Args:
+        follow_meta (dict or None, optional): Dictionary to pass within \
+            link follow requests. Defaults to None.
+        follow_items (dict or None, optional): Dictionary to pass within \
+            item link requests. Defaults to None.
     """
     itemcount = 0
     item_link_extractor = None
