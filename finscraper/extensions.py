@@ -1,4 +1,4 @@
-"""Module for Scrapy extension."""
+"""Module for Scrapy extensions."""
 
 
 import logging
@@ -14,7 +14,10 @@ from finscraper.utils import TqdmLogger
 
 
 class ProgressBar:
-
+    """Scrapy extension thay displays progress bar.
+    
+    Enabled via ``PROGRESS_BAR_ENABLED`` Scrapy setting.
+    """
     def __init__(self, crawler):
         self.progress_bar_enabled = (
             crawler.settings.get('PROGRESS_BAR_ENABLED', False))

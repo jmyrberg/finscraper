@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+"""Module for finscraper's default Scrapy settings."""
 
 # Scrapy settings for finscraper project
 #

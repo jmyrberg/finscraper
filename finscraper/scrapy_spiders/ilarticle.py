@@ -17,27 +17,20 @@ class _ILArticleSpider(FollowAndParseItemMixin, Spider):
     name = 'ilarticle'
     custom_settings = {}
 
-    def __init__(
-            self,
-            category=None,
-            follow_link_extractor=None,
-            item_link_extractor=None,
-            *args,
-            **kwargs):
+    def __init__(self, category=None, follow_link_extractor=None,
+                 item_link_extractor=None, *args, **kwargs):
         """Fetch Iltalehti news articles.
         
         Args:
             category (str, list or None, optional): Category to fetch articles
-                from, meaning pages under https://iltalehti.fi/<category>/*'.
+                from, meaning pages under https://iltalehti.fi/category/*.
                 Defaults to None, which fetches articles everywhere.
-            follow_link_extractor (scrapy.linkextractors.LinkExtractor or
-                None, optional): Link extractor to use for finding new article
-                pages. Defaults to None, which uses the default follow link
-                extractor.
-            item_link_extractor (scrapy.linkextractors.LinkExtractor or
-                None, optional): Link extractor for fetching article pages to
-                scrape. Defaults to None, which uses the default item link
-                extractor.
+            follow_link_extractor (LinkExtractor or None, optional):
+                Link extractor to use for finding new article pages. Defaults
+                to None, which uses the default follow link extractor.
+            item_link_extractor (LinkExtractor or None, optional): 
+                Link extractor for fetching article pages to scrape. Defaults
+                to None, which uses the default item link extractor.
         """
         super(_ILArticleSpider, self).__init__(*args, **kwargs)
         self.category = category
@@ -113,14 +106,14 @@ class _ILArticleSpider(FollowAndParseItemMixin, Spider):
 class _ILArticleItem(Item):
     """
     Returned fields:
-        url (str): URL of the scraped web page.
-        time (int): UNIX timestamp of the scraping.
-        title (str): Title of the article.
-        ingress (str): Ingress of the article.
-        content (str): Contents of the article.
-        published (str): Publish time of the article.
-        author (str): Author of the article.
-        images (list of dict): Images of the article.
+        * url (str): URL of the scraped web page.
+        * time (int): UNIX timestamp of the scraping.
+        * title (str): Title of the article.
+        * ingress (str): Ingress of the article.
+        * content (str): Contents of the article.
+        * published (str): Publish time of the article.
+        * author (str): Author of the article.
+        * images (list of dict): Images of the article.
     """
     url = Field(
         input_processor=Identity(),

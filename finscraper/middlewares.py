@@ -1,8 +1,7 @@
-"""Module for Scrapy middleware."""
+"""Module for Scrapy middlewares."""
 
 
 import logging
-logger = logging.getLogger(__name__)
 
 import time
 
@@ -22,7 +21,18 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 
 class DownloaderMiddlewareWithJs:
+    """Middleware that runs JavaScript.
+        
+    Usage via ``scrapy.Request.meta``:
+        * run_js (bool): Whether to run JavaScript or not.
+        * run_js_wait_sec (int): How many seconds to wait when rendering the \
+        page.
+        * scroll_to_bottom (bool): Whether to scroll page to bottom or not.
+        * scroll_to_bottom_wait_sec (int): How many seconds to wait after \
+        scrolling to bottom.
 
+    If meta is not used, the request is just passed through.
+    """
     def __init__(self, settings):
         self.log_enabled = settings.get('LOG_ENABLED', False)
         self.log_level = settings.get('LOG_LEVEL', logging.NOTSET)
@@ -65,11 +75,9 @@ class DownloaderMiddlewareWithJs:
         
         request.meta['driver'] = self.driver
         if run_js or scroll_to_bottom:
-            logger.debug('Loading site with javascript')
             self.driver.get(request.url)  # TODO: Implement conditional wait
             time.sleep(run_js_wait_sec)
             if scroll_to_bottom:
-                logger.debug('Scrolling to bottom')
                 self.driver.execute_script(
                     'window.scrollTo(0, document.body.scrollHeight);')
                 time.sleep(scroll_to_bottom_wait_sec)

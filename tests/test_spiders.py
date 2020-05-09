@@ -186,4 +186,10 @@ def test_spider_progress_bar():
     assert spider.progress_bar == False
     assert len(spider.get()) > 0
 
+    # Progress bar enabled, chromedriver used
+    spider = ISArticle(allow_chromedriver=True)
+    spider.scrape(1)
+    assert spider.progress_bar == True
+    assert len(spider.get()) > 0
+
     # TODO: Test the output
