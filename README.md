@@ -11,6 +11,7 @@ The library provides an easy-to-use API for fetching data from various Finnish w
 
 Documentation is available at [https://www.finscraper.readthedocs.io](https://www.finscraper.readthedocs.io).
 
+
 ## Installation
 
 `pip install finscraper`
@@ -35,5 +36,7 @@ repository up-to-date all by myself - pull requests are more than welcome!
 
 
 ---
+
+[![Documentation Status](https://readthedocs.org/projects/finscraper/badge/?version=latest)](https://finscraper.readthedocs.io/en/latest/?badge=latest)
 
 Jesse Myrberg (jesse.myrberg@gmail.com)
