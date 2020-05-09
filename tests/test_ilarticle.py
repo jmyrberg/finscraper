@@ -1,6 +1,9 @@
 """Module for testing ILArticle."""
 
 
+import pytest
+pytestmark = [pytest.mark.spider, pytest.mark.ilarticle]
+
 from finscraper.spiders import ILArticle
 
 

@@ -1,6 +1,10 @@
 """Module for testing ISArticle."""
 
 
+import pytest
+pytestmark = [pytest.mark.spider, pytest.mark.isarticle]
+
+
 from finscraper.spiders import ISArticle
 
 
