@@ -46,7 +46,7 @@ copyright = '2020, Jesse Myrberg'
 author = 'Jesse Myrberg'
 
 # The full version, including alpha/beta/rc tags
-release = '0.0.1dev3'
+release = '0.0.1dev4'
 
 
 # -- General configuration ---------------------------------------------------
