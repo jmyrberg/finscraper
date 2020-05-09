@@ -11,9 +11,9 @@ python:
 env:
   - SPIDER=ilarticle
   - SPIDER=isarticle
-  - SPIDER="'not spider'"
+  - SPIDER="not spider"
 
 install:
   - pip install -r requirements.txt -r requirements-dev.txt
 
-script: pytest -m $SPIDER
+script: pytest -m "$SPIDER"
