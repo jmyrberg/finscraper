@@ -1,0 +1,19 @@
+language: python
+
+os:
+  - linux
+
+python:
+  - "3.6"
+  - "3.7"
+  - "3.8"
+
+env:
+  - SPIDER=ilarticle
+  - SPIDER=isarticle
+  - SPIDER="not spider"
+
+install:
+  - pip install -r requirements.txt -r requirements-dev.txt
+
+script: pytest -m "$SPIDER"
