@@ -15,15 +15,15 @@ from finscraper.spiders import ISArticle, ILArticle
 
 def test_ISArticle_with_category():
     # Test scraping, no chromedriver
-    spider = ISArticle('ulkomaat').scrape(20)
+    spider = ISArticle('ulkomaat').scrape(10)
     df = spider.get()
-    assert len(df) >= 20
+    assert len(df) >= 10
     assert len(df.columns) == 8
 
     # Test scraping with chromedriver
-    spider = ISArticle('ulkomaat', allow_chromedriver=True).scrape(20)
+    spider = ISArticle('ulkomaat', allow_chromedriver=True).scrape(10)
     df = spider.get()
-    assert len(df) >= 20
+    assert len(df) >= 10
     assert len(df.columns) == 8
 
     # Test continuing scraping
