@@ -1,8 +1,19 @@
 language: python
+
+os:
+  - linux
+
 python:
+  - "3.6"
   - "3.7"
   - "3.8"
+
+env:
+  - TEST_SUITE=tests.test_ilarticle
+  - TEST_SUITE=tests.test_isarticle
+  - TEST_SUITE=tests.test_wrappers
+
 install:
   - pip install -r requirements.txt -r requirements-dev.txt
-script:
-  - nosetests
+
+script: nosetests $TEST_SUITE
