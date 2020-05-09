@@ -5,7 +5,6 @@ import logging
 
 from pathlib import Path
 
-
 from finscraper.spiders import ISArticle, ILArticle
 
 
