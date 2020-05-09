@@ -1,19 +1,24 @@
 language: python
-
 os:
-  - linux
-
+- linux
 python:
-  - "3.6"
-  - "3.7"
-  - "3.8"
-
+- '3.6'
+- '3.7'
+- '3.8'
 env:
-  - SPIDER=ilarticle
-  - SPIDER=isarticle
-  - SPIDER="not spider"
-
+- SPIDER=ilarticle
+- SPIDER=isarticle
+- SPIDER="not spider"
 install:
-  - pip install -r requirements.txt -r requirements-dev.txt
-
+- pip install -r requirements.txt -r requirements-dev.txt
 script: pytest -m "$SPIDER"
+deploy:
+  provider: pypi
+  user: jmyrberg
+  password:
+    secure: tVF03GyJRVBA4sePkb70Xyfkte84CFV6WY1dxlSFxbDFmQFS0lcxsbp7T58eI2obqOjP3hvSWwFYG4tFeDj8aNwwd5MZRNwFf9vfkDww7Rl/fV6FnPF0CJWX4CX4m4HjTKhLuuVCzLDTyYcXkdTZhx0Kbqk6uhHjBgZpJPLpdVU4iOdz5FsMm56ov7IJSKfgRBkhgfKoSF1/1Ob2NjkkbKJ6cXLE+fubcKKsLx+YdTKfddwFNsoz9f0dII2ZTC6QvJWQON0KalB7qIbNtSz3arYyD5EvdI3+ce+lkaWP50CBlRH7owKFLC9qxSXqEUOYniMgEfGnmkHR896UbBRxiOlut6i7MelP68bYV18D2twSJ+pvHpRYv6oQz+PkiQtYo06F4eTwacC7aEy9S4+sBTWOT6hWM7vN/xh9LeGc9+1ij2MgsDWgI8WTzz7WHYyAGCTyiB05WVeV9JYtE1ctac5Owm5c2oQhQaM6eOVVChh++2U5ue4IARa/iIUE1AUX326LROQHDFWnfakkNp3ZphT6IOGlemCKADzvptQ93eFeh2T0DGpUIl3dD8RMonKlrwVD6ZI97mCm9aFrZZUqCbaaXvVt1Xu+Nw5x/ZqL0MWLoczqIMJioFKd875gy7XjAim+G/16evwNvu1BoyFjqKFmoKLzoXHEz5An8dTZ1Go=
+  on:
+    tags: true
+    distributions: sdist bdist_wheel
+    repo: jmyrberg/finscraper
+  skip_cleanup: 'true'
