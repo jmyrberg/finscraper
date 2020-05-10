@@ -4,10 +4,12 @@ import setuptools
 with open('README.md', 'r') as f:
     long_description = f.read()
 
+with open('VERSION', 'r') as f:
+    version = f.read().strip()
 
 setuptools.setup(
     name='finscraper',
-    version='0.0.1dev5',
+    version=version,
     license='MIT',
     description='Web scraping API for Finnish websites',
     long_description=long_description,
@@ -15,7 +17,7 @@ setuptools.setup(
     author='Jesse Myrberg',
     author_email='jesse.myrberg@gmail.com',
     url='https://github.com/jmyrberg/finscraper',
-    keywords=['web', 'scraping', 'finnish'],
+    keywords=['web', 'scraping', 'finnish', 'nlp'],
     install_requires=[
         'pandas>=1.0.3',
         'selenium>=3.141.0',
