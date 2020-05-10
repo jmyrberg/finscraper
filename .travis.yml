@@ -11,6 +11,7 @@ install:
 env:
   - SPIDER=ilarticle
   - SPIDER=isarticle
+  - SPIDER=ylearticle
   - SPIDER="not spider"
 script: pytest -m "$SPIDER"
 jobs:
