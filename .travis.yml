@@ -9,10 +9,9 @@ env:
   - SPIDER="not spider"
 install:
   - pip install -r requirements.txt -r requirements-dev.txt
+script: pytest -m "$SPIDER"
 jobs:
   include:
-  - stage: Test
-    script: pytest -m "$SPIDER"
   - stage: Deploy to Github Releases
     python: '3.8'
     before_deploy:
