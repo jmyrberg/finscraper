@@ -36,9 +36,15 @@ def test_spider_save_load_without_jobdir():
 
 
 def test_spider_clear():
-    # Directory not removed when deleted
+    # Directory removed not saved and deleted
     spider = ISArticle()
     jobdir = spider.jobdir
+    del spider
+    assert not Path(jobdir).exists()
+
+    # Directory not removed if saved and deleted
+    spider = ISArticle().scrape(1)
+    jobdir = spider.save()
     del spider
     assert Path(jobdir).exists()
 

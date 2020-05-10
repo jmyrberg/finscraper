@@ -3,7 +3,6 @@
 
 import io
 import logging
-
 import pickle
 import re
 
@@ -84,7 +83,10 @@ class QueueHandler(logging.Handler):
             self.handleError(record)
 
 
-def strip_join(text_list):
-    joined_text = ' '.join(text.strip() for text in text_list
-                           if text is not None)
+def strip_join(text_list, join_with=' '):
+    joined_text = join_with.join(text.strip() for text in text_list
+                                 if text is not None)
     return joined_text
+
+def strip_elements(text_list):
+    return [text.strip() for text in text_list if text is not None]
