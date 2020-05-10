@@ -12,7 +12,7 @@ env:
   - SPIDER=ilarticle
   - SPIDER=isarticle
   - SPIDER="not spider"
-script: if [ $TRAVIS_PULL_REQUEST == true ]; then pytest -m "$SPIDER"; fi
+script: echo $TRAVIS_PULL_REQUEST && if [ $TRAVIS_PULL_REQUEST == true ]; then pytest -m "$SPIDER"; fi
 jobs:
   include:
     - stage: test
