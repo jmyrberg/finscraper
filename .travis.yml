@@ -1,47 +1,19 @@
 language: python
+
 os:
-- linux
+  - linux
+
 python:
-- '3.6'
-- '3.7'
-- '3.8'
+  - "3.6"
+  - "3.7"
+  - "3.8"
+
 env:
-- SPIDER=ilarticle
-- SPIDER=isarticle
-- SPIDER="not spider"
+  - SPIDER=ilarticle
+  - SPIDER=isarticle
+  - SPIDER="not spider"
+
 install:
-- pip install -r requirements.txt -r requirements-dev.txt
+  - pip install -r requirements.txt -r requirements-dev.txt
+
 script: pytest -m "$SPIDER"
-jobs:
-  include:
-  - stage: deploy to releases
-    before_deploy:
-        - git config --local user.name "jmyrberg"
-        - git config --local user.email "jesse.myrberg@gmail.com"
-        - export RELEASE_VERSION=0.0.1dev5
-        - git tag $RELEASE_VERSION
-    deploy:
-      provider: releases
-      name: Version $RELEASE_VERSION
-      tag_name: $RELEASE_VERSION
-      prerelease: true
-      api_key:
-        secure: aCpMWnRh0vuFpXC7npTdw2JwrTKVN7Fkn/0e3NKNF3b8S44i9Z/XdIsImIGggMDWdhqAi96RxPD1PqAahGLIu/GY1NY/KfmYJURA+RTYIYeobamKyjpFd8+Xbkput/axEskZHOuPF1jxISWk6FxgaEi2Et4DkGX/hLGNNY8uwbssUiSBo5xkTfihZeIPNu8ZhSeCF9oV4k4xqzQwDvsrBqaSkeGddd0AxxW68ZEx172nQfeprr+IKL89fo4h5+gxkOxh4XI/JJPXGNNnpdgzYXxtG41V5CB6trily4jTEEXgAT4Ek2usXZg+gr91CSvgMU6N3Nc+kP9Von8s0a+wrYBfsjX4ht3iUK6be5nhXbXfc/LPxQvjnjRWLJT0o5h2ln1Vhc68IaiIykSaoDJlOC8AGUvgACgQrLCcr5n9nadewY99slZ9mmz9Ax6QHVq9b58Gs6X0XBnDiFqYlYqKdZtxRX5x/EmiDvievifzwXIDN7plY1/Cfw97sBdHZYI9TPNsD3JqMmfK/vn98vwjuFlYhc80m5SCpvZhCgwlfnoo4spB0Ju2EZzvFdPbOu5Og2qKvIb3P8loAcrZpG8ql096e8v7Aw/lBb8kNST5kq8ZaYB98RJuz2+d/hp/vQmiSlmcyrplRn8jh5/xFCZlQ4R5FkBXm0XTSlvZSxc8dVk=
-      file:
-        - dist/*.tar.gz
-      file_glob: true
-      on:
-        branch: master
-        repo: jmyrberg/finscraper
-      skip_cleanup: 'true'
-  - stage: deploy to pypi
-    provider: pypi
-    user: jmyrberg
-    password:
-      secure: tVF03GyJRVBA4sePkb70Xyfkte84CFV6WY1dxlSFxbDFmQFS0lcxsbp7T58eI2obqOjP3hvSWwFYG4tFeDj8aNwwd5MZRNwFf9vfkDww7Rl/fV6FnPF0CJWX4CX4m4HjTKhLuuVCzLDTyYcXkdTZhx0Kbqk6uhHjBgZpJPLpdVU4iOdz5FsMm56ov7IJSKfgRBkhgfKoSF1/1Ob2NjkkbKJ6cXLE+fubcKKsLx+YdTKfddwFNsoz9f0dII2ZTC6QvJWQON0KalB7qIbNtSz3arYyD5EvdI3+ce+lkaWP50CBlRH7owKFLC9qxSXqEUOYniMgEfGnmkHR896UbBRxiOlut6i7MelP68bYV18D2twSJ+pvHpRYv6oQz+PkiQtYo06F4eTwacC7aEy9S4+sBTWOT6hWM7vN/xh9LeGc9+1ij2MgsDWgI8WTzz7WHYyAGCTyiB05WVeV9JYtE1ctac5Owm5c2oQhQaM6eOVVChh++2U5ue4IARa/iIUE1AUX326LROQHDFWnfakkNp3ZphT6IOGlemCKADzvptQ93eFeh2T0DGpUIl3dD8RMonKlrwVD6ZI97mCm9aFrZZUqCbaaXvVt1Xu+Nw5x/ZqL0MWLoczqIMJioFKd875gy7XjAim+G/16evwNvu1BoyFjqKFmoKLzoXHEz5An8dTZ1Go=
-    on:
-      branch: master
-      tags: true
-      distributions: sdist
-      repo: jmyrberg/finscraper
-    skip_cleanup: true

@@ -11,7 +11,7 @@ The library provides an easy-to-use API for fetching data from various Finnish w
 | IltaSanomat | https://www.is.fi        | News article | `finscraper.spiders.ISArticle` |
 | Iltalehti   | https://www.iltalehti.fi | News article | `finscraper.spiders.ILArticle` |
 
-Documentation is available at [https://finscraper.readthedocs.io](https://finscraper.readthedocs.io).
+Documentation is available at [https://www.finscraper.readthedocs.io](https://www.finscraper.readthedocs.io).
 
 
 ## Installation
