@@ -17,10 +17,10 @@ jobs:
     script: skip
     python: '3.8'
     before_deploy:
-    - export RELEASE_VERSION=$( cat VERSION )
-    - git config --local user.name "jmyrberg"
-    - git config --local user.email "jesse.myrberg@gmail.com"
-    - git tag $RELEASE_VERSION
+      - export RELEASE_VERSION=$( cat VERSION )
+      - git config --local user.name "jmyrberg"
+      - git config --local user.email "jesse.myrberg@gmail.com"
+      - git tag $RELEASE_VERSION
     deploy:
       provider: releases
       name: Version $RELEASE_VERSION
@@ -35,6 +35,8 @@ jobs:
         branch: master
         repo: jmyrberg/finscraper
       cleanup: false
+    after_deploy:
+      - git push origin --tags
   - stage: Deploy to PyPi
     script: skip
     python: '3.8'
