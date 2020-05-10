@@ -8,6 +8,8 @@ from finscraper.scrapy_spiders.ilarticle import _ILArticleSpider, \
     _ILArticleItem
 from finscraper.scrapy_spiders.isarticle import _ISArticleSpider, \
     _ISArticleItem
+from finscraper.scrapy_spiders.ylearticle import _YLEArticleSpider, \
+    _YLEArticleItem
 
 
 __wrapper_doc__ = '''
@@ -59,6 +61,21 @@ class ILArticle(_SpiderWrapper):
             spider_cls=_ILArticleSpider,
             spider_params=dict(
                 category=category,
+                follow_link_extractor=follow_link_extractor,
+                item_link_extractor=item_link_extractor
+            ),
+            jobdir=jobdir,
+            progress_bar=progress_bar,
+            log_level=log_level)
+
+
+class YLEArticle(_SpiderWrapper):
+    __doc__ = _get_docstring(_YLEArticleSpider, _YLEArticleItem)
+    def __init__(self, follow_link_extractor=None, item_link_extractor=None,
+                 jobdir=None, progress_bar=True, log_level=None):
+        super(YLEArticle, self).__init__(
+            spider_cls=_YLEArticleSpider,
+            spider_params=dict(
                 follow_link_extractor=follow_link_extractor,
                 item_link_extractor=item_link_extractor
             ),
