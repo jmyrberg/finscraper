@@ -8,6 +8,7 @@ import shutil
 import sys
 import tempfile
 import uuid
+import weakref
 
 from logging.handlers import QueueListener
 from multiprocessing import Process, Queue
@@ -118,6 +119,9 @@ class _SpiderWrapper:
         
         self._items_save_path = self._jobdir / 'items.jl'
         self._spider_save_path = self._jobdir / 'spider.pkl'
+
+        self._finalizer = weakref.finalize(
+            self, shutil.rmtree, self._jobdir, ignore_errors=True)
         
         # Note: Parameters cannot be changed outside by setting them
         for param in self.spider_params:
@@ -268,6 +272,7 @@ class _SpiderWrapper:
         save_tuple = (self.spider_cls, self.spider_params, self.jobdir)
         with open(self.spider_save_path, 'wb') as f:
             pickle.dump(save_tuple, f)
+        self._finalizer.detach()
         return self.jobdir
 
     @classmethod
