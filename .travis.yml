@@ -12,13 +12,12 @@ env:
   - SPIDER=ilarticle
   - SPIDER=isarticle
   - SPIDER="not spider"
-script: pytest -m "$SPIDER"
+script: echo "Starting..."
 jobs:
   include:
-    - stage: Test
-      if: type = pull_request
-    - stage: Deploy to Github Releases
-      if: type IN (push, api, cron)
+    - stage: test
+      script: pytest -m "$SPIDER"
+    - stage: release
       script: skip
       python: '3.8'
       before_deploy:
@@ -39,11 +38,10 @@ jobs:
         on:
           branch: master
           repo: jmyrberg/finscraper
-        cleanup: false
+        skip_cleanup: 'true'
       after_success:
         - git push --tags
-    - stage: Deploy to PyPi
-      if: type IN (push, api, cron)
+    - stage: deploy
       script: skip
       python: '3.8'
       deploy:
@@ -56,4 +54,10 @@ jobs:
           branch: master
           tags: true
           repo: jmyrberg/finscraper
-        cleanup: false
+        skip_cleanup: 'true'
+stages:
+  - test
+  - name: release
+    if: type IN (push, api, cron)
+  - name: deploy
+    if: type IN (push, api, cron)
