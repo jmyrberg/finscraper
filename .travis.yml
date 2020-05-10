@@ -4,20 +4,22 @@ os:
 python:
   - '3.8'
 env:
-  - SPIDER=ilarticle
-  - SPIDER=isarticle
-  - SPIDER="not spider"
+  matrix:
+    - SPIDER=ilarticle
+    - SPIDER=isarticle
+    - SPIDER="not spider"
 install:
   - pip install -r requirements.txt -r requirements-dev.txt
 script: pytest -m "$SPIDER"
 jobs:
   include:
   - stage: Deploy to Github Releases
+    script: skip
     python: '3.8'
     before_deploy:
+    - export RELEASE_VERSION=$( cat VERSION )
     - git config --local user.name "jmyrberg"
     - git config --local user.email "jesse.myrberg@gmail.com"
-    - export RELEASE_VERSION=0.0.1dev6
     - git tag $RELEASE_VERSION
     deploy:
       provider: releases
@@ -34,6 +36,7 @@ jobs:
         repo: jmyrberg/finscraper
       skip_cleanup: 'true'
   - stage: Deploy to PyPi
+    script: skip
     python: '3.8'
     provider: pypi
     user: jmyrberg
