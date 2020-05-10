@@ -12,11 +12,10 @@ env:
   - SPIDER=ilarticle
   - SPIDER=isarticle
   - SPIDER="not spider"
-script: echo "Starting..."
+script: if [ $TRAVIS_PULL_REQUEST == "true" ]; then pytest -m "$SPIDER"; fi
 jobs:
   include:
     - stage: test
-      script: pytest -m "$SPIDER"
     - stage: release
       script: skip
       python: '3.8'
