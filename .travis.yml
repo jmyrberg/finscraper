@@ -12,11 +12,11 @@ env:
   - SPIDER=ilarticle
   - SPIDER=isarticle
   - SPIDER="not spider"
+script: pytest -m "$SPIDER"
 jobs:
   include:
     - stage: Test
       if: type = pull_request
-      script: pytest -m "$SPIDER"
     - stage: Deploy to Github Releases
       if: type IN (push, api, cron)
       script: skip
