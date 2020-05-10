@@ -27,6 +27,7 @@ setuptools.setup(
         'attrs>=19.2.0'
     ],
     packages=setuptools.find_packages(),
+    include_package_data=True,
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
