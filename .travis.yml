@@ -16,19 +16,19 @@ jobs:
   include:
   - stage: deploy to releases
     before_deploy:
-        - git config --local user.name "jmyrberg"
-        - git config --local user.email "jesse.myrberg@gmail.com"
-        - export RELEASE_VERSION=0.0.1dev5
-        - git tag $RELEASE_VERSION
+    - git config --local user.name "jmyrberg"
+    - git config --local user.email "jesse.myrberg@gmail.com"
+    - export RELEASE_VERSION=0.0.1dev5
+    - git tag $RELEASE_VERSION
     deploy:
       provider: releases
       name: Version $RELEASE_VERSION
-      tag_name: $RELEASE_VERSION
+      tag_name: "$RELEASE_VERSION"
       prerelease: true
       api_key:
-        secure: aCpMWnRh0vuFpXC7npTdw2JwrTKVN7Fkn/0e3NKNF3b8S44i9Z/XdIsImIGggMDWdhqAi96RxPD1PqAahGLIu/GY1NY/KfmYJURA+RTYIYeobamKyjpFd8+Xbkput/axEskZHOuPF1jxISWk6FxgaEi2Et4DkGX/hLGNNY8uwbssUiSBo5xkTfihZeIPNu8ZhSeCF9oV4k4xqzQwDvsrBqaSkeGddd0AxxW68ZEx172nQfeprr+IKL89fo4h5+gxkOxh4XI/JJPXGNNnpdgzYXxtG41V5CB6trily4jTEEXgAT4Ek2usXZg+gr91CSvgMU6N3Nc+kP9Von8s0a+wrYBfsjX4ht3iUK6be5nhXbXfc/LPxQvjnjRWLJT0o5h2ln1Vhc68IaiIykSaoDJlOC8AGUvgACgQrLCcr5n9nadewY99slZ9mmz9Ax6QHVq9b58Gs6X0XBnDiFqYlYqKdZtxRX5x/EmiDvievifzwXIDN7plY1/Cfw97sBdHZYI9TPNsD3JqMmfK/vn98vwjuFlYhc80m5SCpvZhCgwlfnoo4spB0Ju2EZzvFdPbOu5Og2qKvIb3P8loAcrZpG8ql096e8v7Aw/lBb8kNST5kq8ZaYB98RJuz2+d/hp/vQmiSlmcyrplRn8jh5/xFCZlQ4R5FkBXm0XTSlvZSxc8dVk=
+        secure: R0hmX8m1t+mMv/nBAlMETiKDbS2SXyKVutfm0FS5u5X41bSpNmEKSh4/CqGptRJ6G/DC1jtZUu3Q2vYu7nKyFkBphCmhQ9YNx0alz4X9u3j69Z4gPrrxlOoKi0SBUwUgYFkCsqaElaZ5WoZq+jOoYpLP9dE6bQdexxlYZP3kC2VcXcN7aUdrVt/nA0sSJ3OGz4AI7xzXu6w8zg/NP0MSABdh+5l59R6fJl4mAtdEJMOAMvJomBHxTykSFYToafX1xHEY8SGh4eR+NWVPwpiUK27yCTLGb9us7o509wIkJgDq8OJ00UtOWqa9v2lYlxKREe+DCoBL+ALG2jukOjWETaLf7GQrXiNrHSVGO4BUzENeeXzNppSkAwBQc02GT2pI7T+0QvUJ3TNmF6qzzbWGFI9o2LsS/hV4Ji86BlbeJQpmCGcBTo8LlphZFYHhYvwcmLCIk78cTlLjCRoE7F7Uar0/bdTsPp/uXtLKKLZIRXsTBw93bMHB6BgVmyYLnylRFjCqhgHZeSAm2hZ58LmW8Sy6nKbhL308yuD0RpmcPDpIEzS2CG3Myref2nT1rif+jTrVMMTFwgdqkjhpCQ4rjAmlCc3OmFRi3/56KoAKU//hyYlg3nerejvkY0RVCOHPWldWUVU0AliFc5IzGZ8qaO1k5oqBzEqLMnF/Fk8BxuU=
       file:
-        - dist/*.tar.gz
+      - dist/*.tar.gz
       file_glob: true
       on:
         branch: master
