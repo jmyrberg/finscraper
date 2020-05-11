@@ -8,6 +8,8 @@ from finscraper.scrapy_spiders.ilarticle import _ILArticleSpider, \
     _ILArticleItem
 from finscraper.scrapy_spiders.isarticle import _ISArticleSpider, \
     _ISArticleItem
+from finscraper.scrapy_spiders.vauvapage import _VauvaPageSpider, \
+    _VauvaPageItem, _VauvaPageSpider
 from finscraper.scrapy_spiders.ylearticle import _YLEArticleSpider, \
     _YLEArticleItem
 
@@ -75,6 +77,21 @@ class YLEArticle(_SpiderWrapper):
                  jobdir=None, progress_bar=True, log_level=None):
         super(YLEArticle, self).__init__(
             spider_cls=_YLEArticleSpider,
+            spider_params=dict(
+                follow_link_extractor=follow_link_extractor,
+                item_link_extractor=item_link_extractor
+            ),
+            jobdir=jobdir,
+            progress_bar=progress_bar,
+            log_level=log_level)
+
+
+class VauvaPage(_SpiderWrapper):
+    __doc__ = _get_docstring(_VauvaPageSpider, _VauvaPageItem)
+    def __init__(self, follow_link_extractor=None, item_link_extractor=None,
+                 jobdir=None, progress_bar=True, log_level=None):
+        super(VauvaPage, self).__init__(
+            spider_cls=_VauvaPageSpider,
             spider_params=dict(
                 follow_link_extractor=follow_link_extractor,
                 item_link_extractor=item_link_extractor

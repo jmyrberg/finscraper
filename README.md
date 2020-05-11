@@ -6,11 +6,12 @@
 
 The library provides an easy-to-use API for fetching data from various Finnish websites:
 
-| Website     | URL                        | Type         | Spider API class                |
-| ----------- | -------------------------- | ------------ | ------------------------------- |
-| IltaSanomat | https://www.is.fi          | News article | `finscraper.spiders.ISArticle`  |
-| Iltalehti   | https://www.iltalehti.fi   | News article | `finscraper.spiders.ILArticle`  |
-| YLE         | https://www.yle.fi/uutiset | News article | `finscraper.spiders.YLEArticle` |
+| Website     | URL                        | Type              | Spider API class |
+| ----------- | -------------------------- | ----------------- | ---------------- |
+| IltaSanomat | https://www.is.fi          | News article      | `ISArticle`      |
+| Iltalehti   | https://www.il.fi          | News article      | `ILArticle`      |
+| YLE         | https://www.yle.fi/uutiset | News article      | `YLEArticle`     |
+| Vauva       | https://www.vauva.fi       | Discussion thread | `VauvaPage`      |
 
 Documentation is available at [https://finscraper.readthedocs.io](https://finscraper.readthedocs.io).
 

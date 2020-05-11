@@ -90,3 +90,13 @@ def strip_join(text_list, join_with=' '):
 
 def strip_elements(text_list):
     return [text.strip() for text in text_list if text is not None]
+
+def drop_empty_elements(text_list):
+    return [text for text in text_list
+            if text.strip() != '' and text is not None]
+
+def safe_cast_int(text):
+    try:
+        return int(text)
+    except:
+        return None
