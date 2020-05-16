@@ -185,7 +185,7 @@ class _SpiderWrapper:
         """
         return str(self._spider_save_path)
 
-    def _run_spider(self, itemcount=10, timeout=120, pagecount=0, errorcount=0,
+    def _run_spider(self, itemcount=10, timeout=60, pagecount=0, errorcount=0,
                     settings=None):
         _settings = Settings()
         _settings.setmodule('finscraper.settings', priority='project')
@@ -218,14 +218,14 @@ class _SpiderWrapper:
         except KeyboardInterrupt:
             pass
     
-    def scrape(self, n=10, timeout=120, settings=None):
+    def scrape(self, n=10, timeout=60, settings=None):
         """Scrape given number of items.
         
         Args:
             n (int, optional): Number of items to attempt to scrape. Zero
                 corresponds to no limit. Defaults to 10.
             timeout (int, optional): Timeout in seconds to wait before stopping
-                the spider. Zero corresponds to no limit. Defaults to 120.
+                the spider. Zero corresponds to no limit. Defaults to 60.
             settings (dict or None, optional): Scrapy spider settings to use.
                 Defaults to None, which correspond to default settings.
                 See list of available settings at:

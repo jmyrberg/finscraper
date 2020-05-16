@@ -18,51 +18,29 @@ from finscraper.utils import strip_join
 
 class _YLEArticleSpider(FollowAndParseItemMixin, Spider):
     name = 'ylearticle'
+    start_urls = ['https://www.yle.fi/uutiset']
+    follow_link_extractor = LinkExtractor(
+        allow_domains=('yle.fi'),
+        allow=(r'.*/(uutiset|urheilu)/.*'),
+        deny=(),
+        deny_domains=(),
+        canonicalize=True
+    )
+    item_link_extractor = LinkExtractor(
+        allow_domains=('yle.fi'),
+        allow=(rf'(uutiset|urheilu)/[0-9]+\-[0-9]+'),
+        deny=(rf'(uutiset|urheilu)/18-'),
+        deny_domains=(),
+        canonicalize=True
+    )
     custom_settings = {}
 
-    def __init__(self, follow_link_extractor=None,
-                 item_link_extractor=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         """Fetch YLE news articles.
         
         Args:
-            follow_link_extractor (LinkExtractor or None, optional):
-                Link extractor to use for finding new article pages. Defaults
-                to None, which uses the default follow link extractor.
-            item_link_extractor (LinkExtractor or None, optional): 
-                Link extractor for fetching article pages to scrape. Defaults
-                to None, which uses the default item link extractor.
         """
         super(_YLEArticleSpider, self).__init__(*args, **kwargs)
-        self.follow_link_extractor = follow_link_extractor
-        self.item_link_extractor = item_link_extractor
-
-        article_suffix = r'[0-9]+\-[0-9]+'
-
-        self.start_urls = ['https://www.yle.fi/uutiset']
-        self.allow_follow = (r'.*/(uutiset|urheilu)/.*')
-        self.allow_items = (rf'(uutiset|urheilu)/{article_suffix}')
-
-        self.allow_domains = ('yle.fi')
-        self.deny_domains = ()
-        self.deny_follow = ()
-        self.deny_items = (rf'(uutiset|urheilu)/18-')
-
-        if self.follow_link_extractor is None:
-            self.follow_link_extractor = LinkExtractor(
-                allow_domains=self.allow_domains,
-                allow=self.allow_follow,
-                deny=self.deny_follow,
-                deny_domains=self.deny_domains,
-                canonicalize=True
-            )
-        if self.item_link_extractor is None:
-            self.item_link_extractor = LinkExtractor(
-                allow_domains=self.allow_domains,
-                allow=self.allow_items,
-                deny=self.deny_items,
-                deny_domains=self.deny_domains,
-                canonicalize=True
-            )
 
     @staticmethod
     def _get_image_metadata(text):

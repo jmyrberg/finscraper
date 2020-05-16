@@ -10,29 +10,24 @@ from finscraper.spiders import ISArticle, ILArticle
 
 def test_spider_save_load_with_jobdir():
     jobdir = '../jobdir'
-    category = 'jaakiekko'
-
-    spider = ISArticle(category=category, jobdir=jobdir)
+    spider = ISArticle(jobdir=jobdir)
     
     save_jobdir = spider.save()
     loaded_spider = ISArticle.load(save_jobdir)
 
-    assert (jobdir == str(spider.jobdir)
+    assert (jobdir
+            == str(spider.jobdir)
             == save_jobdir == str(loaded_spider.jobdir))
-    assert category == spider.category == loaded_spider.category
 
 
 def test_spider_save_load_without_jobdir():
-    category = 'jaakiekko'
-
-    spider = ISArticle(category=category)
+    spider = ISArticle()
     
     save_jobdir = spider.save()
     loaded_spider = ISArticle.load(save_jobdir)
 
     assert spider.jobdir is not None
     assert (str(spider.jobdir) == save_jobdir == str(loaded_spider.jobdir))
-    assert category == spider.category == loaded_spider.category
 
 
 def test_spider_clear():
@@ -103,12 +98,6 @@ def test_spider_progress_bar():
     spider = ILArticle(log_level='info')
     spider.scrape(1)
     assert spider.progress_bar == False
-    assert len(spider.get()) > 0
-
-    # Progress bar enabled, chromedriver used
-    spider = ISArticle(allow_chromedriver=True)
-    spider.scrape(1)
-    assert spider.progress_bar == True
     assert len(spider.get()) > 0
 
     # TODO: Test the output

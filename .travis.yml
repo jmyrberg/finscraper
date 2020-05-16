@@ -12,8 +12,9 @@ env:
   - SPIDER=ilarticle
   - SPIDER=isarticle
   - SPIDER=ylearticle
+  - SPIDER=vauvapage
   - SPIDER="not spider"
-script: pytest -m "$SPIDER"
+script: pytest -v -m "$SPIDER"
 jobs:
   include:
     - stage: test
