@@ -18,12 +18,8 @@ content that can be scraped with it, and no more.
 Parameters
 -----------------
 
-Each spider have their own parameters which typically describe the content to be
-crawled. For example, some news spiders support the ``category`` parameter,
-which limits the crawling to news articles within the specified category.
-
-All spiders also have common parameters, such as ``jobdir``,
-``log_level`` or ``progress_bar``.
+Some spiders may have their own parameters which typically describe the content to be
+crawled. All spiders also have common parameters, such as ``jobdir``, ``log_level`` and ``progress_bar``.
 These are mainly for controlling the verbosity and working directories of the spiders.
 
 

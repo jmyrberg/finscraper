@@ -20,19 +20,23 @@ class FollowAndParseItemMixin:
             link follow requests. Defaults to None.
         follow_items (dict or None, optional): Dictionary to pass within \
             item link requests. Defaults to None.
+
+    Raises:
+        AttributeError, if required attributes not defined when inheriting.
     """
     itemcount = 0
-    item_link_extractor = None
-    follow_link_extractor = None
     custom_settings = {
         'DOWNLOADER_MIDDLEWARES': {
             'finscraper.middlewares.DownloaderMiddlewareWithJs': 543
         }
     }
-
     def __init__(self, follow_meta=None, items_meta=None):
         self.follow_meta = follow_meta
         self.items_meta = items_meta
+
+        for attr in ['follow_link_extractor', 'item_link_extractor']:
+            if not hasattr(self, attr):
+                raise AttributeError(f'Attribute `{attr}` must be defined')
 
     def _parse_item(self, resp):
         raise NotImplementedError('Function `_parse_item` not implemented!')

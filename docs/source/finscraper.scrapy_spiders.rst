@@ -28,6 +28,22 @@ finscraper.scrapy\_spiders.mixins module
    :undoc-members:
    :show-inheritance:
 
+finscraper.scrapy\_spiders.vauvapage module
+-------------------------------------------
+
+.. automodule:: finscraper.scrapy_spiders.vauvapage
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+finscraper.scrapy\_spiders.ylearticle module
+--------------------------------------------
+
+.. automodule:: finscraper.scrapy_spiders.ylearticle
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 
 Module contents
 ---------------

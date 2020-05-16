@@ -15,64 +15,29 @@ from finscraper.utils import strip_join
 
 class _ILArticleSpider(FollowAndParseItemMixin, Spider):
     name = 'ilarticle'
+    start_urls = ['https://www.iltalehti.fi']
+    follow_link_extractor = LinkExtractor(
+        allow_domains=('iltalehti.fi'),
+        allow=(),
+        deny=(r'.*/telkku/.*'),
+        deny_domains=(),
+        canonicalize=True
+    )
+    item_link_extractor = LinkExtractor(
+        allow_domains=('iltalehti.fi'),
+        allow=(rf'.*/a/[0-9A-z\-]+'),
+        deny=(r'.*/telkku/.*'),
+        deny_domains=(),
+        canonicalize=True
+    )
     custom_settings = {}
 
-    def __init__(self, category=None, follow_link_extractor=None,
-                 item_link_extractor=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         """Fetch Iltalehti news articles.
         
         Args:
-            category (str, list or None, optional): Category to fetch articles
-                from, meaning pages under https://iltalehti.fi/category/*.
-                Defaults to None, which fetches articles everywhere.
-            follow_link_extractor (LinkExtractor or None, optional):
-                Link extractor to use for finding new article pages. Defaults
-                to None, which uses the default follow link extractor.
-            item_link_extractor (LinkExtractor or None, optional): 
-                Link extractor for fetching article pages to scrape. Defaults
-                to None, which uses the default item link extractor.
         """
         super(_ILArticleSpider, self).__init__(*args, **kwargs)
-        self.category = category
-        self.follow_link_extractor = follow_link_extractor
-        self.item_link_extractor = item_link_extractor
-
-        article_suffix = r'a/[0-9A-z\-]+'
-        if category is None:
-            self.start_urls = ['https://www.iltalehti.fi']
-            self.allow_follow = ()
-            self.allow_items = (rf'.*/{article_suffix}')
-        else:
-            if type(category) == str:
-                category = [category]
-            self.start_urls = []
-            self.allow_follow = []
-            self.allow_items = []
-            for cat in category:
-                self.start_urls.append(f'https://www.iltalehti.fi/{cat}')
-                self.allow_follow.append(rf'.*{cat}.*')
-                self.allow_items.append(rf'.*/{cat}/{article_suffix}')
-
-        self.allow_domains = ('iltalehti.fi')
-        self.deny_domains = ()
-        self.deny = (r'.*/telkku/.*')
-
-        if self.follow_link_extractor is None:
-            self.follow_link_extractor = LinkExtractor(
-                allow_domains=self.allow_domains,
-                allow=self.allow_follow,
-                deny=self.deny,
-                deny_domains=self.deny_domains,
-                canonicalize=True
-            )
-        if self.item_link_extractor is None:
-            self.item_link_extractor = LinkExtractor(
-                allow_domains=self.allow_domains,
-                allow=self.allow_items,
-                deny=self.deny,
-                deny_domains=self.deny_domains,
-                canonicalize=True
-            )
 
     @staticmethod
     def _get_image_metadata(text):
