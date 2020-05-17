@@ -3,7 +3,9 @@
 
 import json
 import logging
+import multiprocessing as mp
 import pickle
+import platform
 import shutil
 import sys
 import tempfile
@@ -11,7 +13,6 @@ import uuid
 import weakref
 
 from logging.handlers import QueueListener
-from multiprocessing import Process, Queue
 from pathlib import Path
 
 import pandas as pd
@@ -26,6 +27,11 @@ from scrapy.utils.log import configure_logging
 from twisted.internet import reactor
 
 from finscraper.utils import QueueHandler
+
+
+# https://turtlemonvh.github.io/python-multiprocessing-and-corefoundation-libraries.html
+if platform.system() == 'Darwin':
+    mp = mp.get_context('spawn')
 
 
 def _run_as_process(func, spider_cls, spider_params, settings):
@@ -44,7 +50,7 @@ def _run_as_process(func, spider_cls, spider_params, settings):
         else:
             handler.setFormatter(logging.Formatter(settings.get('LOG_FORMAT')))
 
-        q_log = Queue(-1)
+        q_log = mp.Queue(-1)
         ql = QueueListener(q_log, handler)
         ql.start()
 
@@ -53,9 +59,9 @@ def _run_as_process(func, spider_cls, spider_params, settings):
         logger.addHandler(handler)
     
     # Start function as a separate process
-    q = Queue()
-    p = Process(target=func,
-                args=(q, q_log, spider_cls, spider_params, settings))
+    q = mp.Queue()
+    p = mp.Process(target=func,
+                   args=(q, q_log, spider_cls, spider_params, settings))
     p.start()
     result = q.get()
     p.join()
