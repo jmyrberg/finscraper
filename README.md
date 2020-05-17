@@ -13,7 +13,7 @@ The library provides an easy-to-use API for fetching data from various Finnish w
 | YLE         | https://www.yle.fi/uutiset | News article      | `YLEArticle`     |
 | Vauva       | https://www.vauva.fi       | Discussion thread | `VauvaPage`      |
 
-Documentation is available at [https://finscraper.readthedocs.io](https://finscraper.readthedocs.io).
+Documentation is available at [https://finscraper.readthedocs.io](https://finscraper.readthedocs.io) and simple online demo [here](https://storage.googleapis.com/jmyrberg/index.html#/demo-projects/finscraper).
 
 
 ## Installation
