@@ -38,7 +38,7 @@ class _OikotieApartmentSpider(Spider):
         canonicalize=True
     )
     custom_settings = {
-        'ROBOTSTXT_OBEY': False,
+        'ROBOTSTXT_OBEY': False,  # No robots.txt, will fail with yes
         'DOWNLOADER_MIDDLEWARES': {
             'finscraper.middlewares.SeleniumCallbackMiddleware': 800
         },
