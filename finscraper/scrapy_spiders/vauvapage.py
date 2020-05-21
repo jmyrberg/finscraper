@@ -1,4 +1,4 @@
-"""Module for YLEArticle spider."""
+"""Module for VauvaPage spider."""
 
 
 import time
@@ -18,7 +18,7 @@ from finscraper.utils import strip_join, safe_cast_int, strip_elements, \
 
 
 class _VauvaPageSpider(FollowAndParseItemMixin, Spider):
-    name = 'ylearticle'
+    name = 'vauvapage'
     start_urls = ['https://vauva.fi']
     follow_link_extractor = LinkExtractor(
         allow_domains=('vauva.fi'),
