@@ -25,11 +25,6 @@ class FollowAndParseItemMixin:
         AttributeError, if required attributes not defined when inheriting.
     """
     itemcount = 0
-    custom_settings = {
-        'DOWNLOADER_MIDDLEWARES': {
-            'finscraper.middlewares.DownloaderMiddlewareWithJs': 543
-        }
-    }
     def __init__(self, follow_meta=None, items_meta=None):
         self.follow_meta = follow_meta
         self.items_meta = items_meta
@@ -59,9 +54,10 @@ class FollowAndParseItemMixin:
         item_links = self.item_link_extractor.extract_links(resp)
         for link in item_links:
             yield Request(link.url, callback=self.parse, meta=self.items_meta,
-                          cb_kwargs={'to_parse': True})
+                          priority=20, cb_kwargs={'to_parse': True})
 
         # Extract all links from this page
         follow_links = self.follow_link_extractor.extract_links(resp)
         for link in follow_links:
-            yield Request(link.url, callback=self.parse, meta=self.follow_meta)
+            yield Request(link.url, callback=self.parse, meta=self.follow_meta,
+                          priority=10)

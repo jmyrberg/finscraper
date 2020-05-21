@@ -13,6 +13,7 @@ env:
   - SPIDER=isarticle
   - SPIDER=ylearticle
   - SPIDER=vauvapage
+  - SPIDER=oikotieapartment
   - SPIDER="not spider"
 script: pytest -v -m "$SPIDER"
 jobs:

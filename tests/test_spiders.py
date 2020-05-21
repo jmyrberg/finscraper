@@ -6,7 +6,10 @@ import time
 import pytest
 pytestmark = [pytest.mark.spider]
 
-from finscraper.spiders import ILArticle, ISArticle, YLEArticle, VauvaPage
+from finscraper.spiders import ILArticle, ISArticle, YLEArticle, VauvaPage, \
+    OikotieApartment
+
+from tests.utils import calc_field_emptiness
 
 
 # Spiders can be added here, and basic tests will be set up automatically
@@ -34,6 +37,12 @@ spiders = [
         'params': [None],
         'n_fields': 8,
         'mark': pytest.mark.vauvapage
+    },
+    {
+        'class': OikotieApartment,
+        'params': [None],
+        'n_fields': 80,
+        'mark': pytest.mark.oikotieapartment
     }
 ]
 
@@ -52,7 +61,7 @@ def spider_params(request):
 
 @pytest.mark.parametrize('spider_cls, spider_params, n_fields', scrape_cases,
                          indirect=['spider_params'])
-def test_scraping(spider_cls, spider_params, n_fields, n_items=10):
+def test_scraping(spider_cls, spider_params, n_fields, capsys, n_items=10):
     # Scraping
     spider = spider_cls(**spider_params).scrape(n_items)
     df = spider.get()
@@ -62,6 +71,12 @@ def test_scraping(spider_cls, spider_params, n_fields, n_items=10):
     # Continue scraping
     df2 = spider.scrape(1).get()
     assert len(df2) > len(df)
+
+    # Field emptiness
+    emptiness = calc_field_emptiness(df2)
+    with capsys.disabled():
+        print(f'\n{emptiness.to_string(index=False)}\n')
+    assert not (emptiness['empty_pct'] == 100).all()
 
 
 @pytest.mark.parametrize('spider_cls, spider_params', other_cases,

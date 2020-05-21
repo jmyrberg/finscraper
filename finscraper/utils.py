@@ -6,6 +6,16 @@ import logging
 import pickle
 import re
 
+# Monkey patch, see https://github.com/pypa/pipenv/issues/2609
+import webdriver_manager.utils
+def console(text, bold=False):
+    pass
+webdriver_manager.utils.console = console
+
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
+
 from tqdm.auto import tqdm
 
 
@@ -81,6 +91,16 @@ class QueueHandler(logging.Handler):
             raise
         except:
             self.handleError(record)
+
+
+def get_chromedriver(options=None):
+    if not options:
+        options = Options()
+        options.add_argument("--headless")
+        options.add_argument("--disable-extensions")
+        options.add_argument("--disable-gpu")
+    driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
+    return driver
 
 
 def strip_join(text_list, join_with=' '):
