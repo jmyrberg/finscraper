@@ -8,6 +8,8 @@ from finscraper.scrapy_spiders.ilarticle import _ILArticleSpider, \
     _ILArticleItem
 from finscraper.scrapy_spiders.isarticle import _ISArticleSpider, \
     _ISArticleItem
+from finscraper.scrapy_spiders.demipage import _DemiPageSpider, \
+    _DemiPageItem
 from finscraper.scrapy_spiders.vauvapage import _VauvaPageSpider, \
     _VauvaPageItem, _VauvaPageSpider
 from finscraper.scrapy_spiders.ylearticle import _YLEArticleSpider, \
@@ -65,6 +67,17 @@ class YLEArticle(_SpiderWrapper):
     def __init__(self, jobdir=None, progress_bar=True, log_level=None):
         super(YLEArticle, self).__init__(
             spider_cls=_YLEArticleSpider,
+            spider_params=dict(),
+            jobdir=jobdir,
+            progress_bar=progress_bar,
+            log_level=log_level)
+
+
+class DemiPage(_SpiderWrapper):
+    __doc__ = _get_docstring(_DemiPageSpider, _DemiPageItem)
+    def __init__(self, jobdir=None, progress_bar=True, log_level=None):
+        super(DemiPage, self).__init__(
+            spider_cls=_DemiPageSpider,
             spider_params=dict(),
             jobdir=jobdir,
             progress_bar=progress_bar,

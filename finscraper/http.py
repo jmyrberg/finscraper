@@ -18,7 +18,7 @@ class SeleniumCallbackRequest(Request):
     def __init__(self, *args, selenium_callback=None, **kwargs):
         #if not callable(selenium_callback):
         #    raise ValueError('`callback` must be a function!')
-        meta = kwargs.pop('meta', {})
+        meta = kwargs.pop('meta', {}) or {}
         if 'selenium_callback' not in meta:
             meta['selenium_callback'] = selenium_callback
         new_kwargs = dict(**kwargs, meta=meta)

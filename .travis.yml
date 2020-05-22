@@ -12,6 +12,7 @@ env:
   - SPIDER=ilarticle
   - SPIDER=isarticle
   - SPIDER=ylearticle
+  - SPIDER=demipage
   - SPIDER=vauvapage
   - SPIDER=oikotieapartment
   - SPIDER="not spider"

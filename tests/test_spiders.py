@@ -7,7 +7,7 @@ import pytest
 pytestmark = [pytest.mark.spider]
 
 from finscraper.spiders import ILArticle, ISArticle, YLEArticle, VauvaPage, \
-    OikotieApartment
+    OikotieApartment, DemiPage
 
 from tests.utils import calc_field_emptiness
 
@@ -43,7 +43,13 @@ spiders = [
         'params': [None],
         'n_fields': 80,
         'mark': pytest.mark.oikotieapartment
-    }
+    },
+    {
+        'class': DemiPage,
+        'params': [None],
+        'n_fields': 6,
+        'mark': pytest.mark.demipage
+    },
 ]
 
 

@@ -4,6 +4,14 @@ finscraper.scrapy\_spiders package
 Submodules
 ----------
 
+finscraper.scrapy\_spiders.demipage module
+------------------------------------------
+
+.. automodule:: finscraper.scrapy_spiders.demipage
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 finscraper.scrapy\_spiders.ilarticle module
 -------------------------------------------
 
