@@ -68,7 +68,7 @@ class _ISArticleSpider(FollowAndParseItemMixin, Spider):
 
 class _ISArticleItem(Item):
     """
-    Returns:
+    Returned fields:
         * url (str): URL of the scraped web page.
         * time (int): UNIX timestamp of the scraping.
         * title (str): Title of the article.
