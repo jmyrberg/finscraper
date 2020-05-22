@@ -4,6 +4,8 @@
 from scrapy import Request
 from scrapy.exceptions import CloseSpider
 
+from finscraper.http import SeleniumCallbackRequest
+
 
 class FollowAndParseItemMixin:
     """Parse items and follow links based on defined link extractors.
@@ -20,14 +22,31 @@ class FollowAndParseItemMixin:
             link follow requests. Defaults to None.
         follow_items (dict or None, optional): Dictionary to pass within \
             item link requests. Defaults to None.
+        follow_selenium_callback (function, bool or None, optional): Selenium \
+            callback to use for follow requests. If function, takes in \
+            parameters (request, spider, driver) and returns response. If \
+            None, follows the default behavior of ``SeleniumCallbackRequest``.\
+            If False, uses normal Scrapy ``Request``. Defaults to None.
+        items_selenium_callback (function, bool or None, optional): Selenium \
+            callback to use for item requests. If function, takes in \
+            parameters (request, spider, driver) and returns response. If \
+            None, follows the default behavior of ``SeleniumCallbackRequest``.\
+            If False, uses normal Scrapy ``Request``. Defaults to None.
 
     Raises:
         AttributeError, if required attributes not defined when inheriting.
     """
     itemcount = 0
-    def __init__(self, follow_meta=None, items_meta=None):
+    def __init__(self, follow_meta=None, items_meta=None,
+                 follow_selenium_callback=False,
+                 items_selenium_callback=False):
         self.follow_meta = follow_meta
         self.items_meta = items_meta
+        self.follow_selenium_callback = follow_selenium_callback
+        self.items_selenium_callback = items_selenium_callback
+
+        self._follow_selenium = not (self.follow_selenium_callback == False)
+        self._items_selenium = not (self.items_selenium_callback == False)
 
         for attr in ['follow_link_extractor', 'item_link_extractor']:
             if not hasattr(self, attr):
@@ -53,11 +72,25 @@ class FollowAndParseItemMixin:
         # Parse items and further on extract links from those pages
         item_links = self.item_link_extractor.extract_links(resp)
         for link in item_links:
-            yield Request(link.url, callback=self.parse, meta=self.items_meta,
-                          priority=20, cb_kwargs={'to_parse': True})
+            if self._items_selenium:
+                yield SeleniumCallbackRequest(
+                    link.url, callback=self.parse, meta=self.items_meta,
+                    selenium_callback=self.items_selenium_callback,
+                    priority=20, cb_kwargs={'to_parse': True})
+            else:
+                yield Request(
+                    link.url, callback=self.parse, meta=self.items_meta,
+                    priority=20, cb_kwargs={'to_parse': True})
 
         # Extract all links from this page
         follow_links = self.follow_link_extractor.extract_links(resp)
         for link in follow_links:
-            yield Request(link.url, callback=self.parse, meta=self.follow_meta,
-                          priority=10)
+            if self._follow_selenium:
+                yield SeleniumCallbackRequest(
+                    link.url, callback=self.parse, meta=self.items_meta,
+                    selenium_callback=self.follow_selenium_callback,
+                    priority=10, cb_kwargs={'to_parse': True})
+            else:
+                yield Request(
+                    link.url, callback=self.parse, meta=self.items_meta,
+                    priority=10, cb_kwargs={'to_parse': True})
