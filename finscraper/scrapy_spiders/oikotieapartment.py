@@ -38,7 +38,7 @@ class _OikotieApartmentSpider(Spider):
         canonicalize=True
     )
     custom_settings = {
-        'ROBOTSTXT_OBEY': False,
+        'ROBOTSTXT_OBEY': False,  # No robots.txt, will fail with yes
         'DOWNLOADER_MIDDLEWARES': {
             'finscraper.middlewares.SeleniumCallbackMiddleware': 800
         },
@@ -223,11 +223,19 @@ class _OikotieApartmentSpider(Spider):
 
 class _OikotieApartmentItem(Item):
     __doc__ = """
-    Returned page fields:
+    Returned fields:
         * url (str): URL of the scraped web page.
         * time (int): UNIX timestamp of the scraping.
-        TODO
-    """
+        * title (str): Title of the web browser tab.
+        * overview (str): Overview text of the apartment.
+        * contact_person_name (str): Name of the contact person.
+        * contact_person_job_title (str): Job title of the contact person.
+        * contact_person_phone_number (str): Phone number of the contact \
+            person.
+        * contact_person_company (str): Company of the contact person.
+        """.strip() + '\n' + (
+            '\n'.join(f'{" " * 8}* {field} (str): {desc}'
+            for desc, field in _OikotieApartmentSpider.title2field.items()))
     url = Field(
         input_processor=Identity(),
         output_processor=TakeFirst()

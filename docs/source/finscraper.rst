@@ -20,10 +20,26 @@ finscraper.extensions module
    :undoc-members:
    :show-inheritance:
 
+finscraper.http module
+----------------------
+
+.. automodule:: finscraper.http
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 finscraper.middlewares module
 -----------------------------
 
 .. automodule:: finscraper.middlewares
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+finscraper.pipelines module
+---------------------------
+
+.. automodule:: finscraper.pipelines
    :members:
    :undoc-members:
    :show-inheritance:

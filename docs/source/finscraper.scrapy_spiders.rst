@@ -28,6 +28,14 @@ finscraper.scrapy\_spiders.mixins module
    :undoc-members:
    :show-inheritance:
 
+finscraper.scrapy\_spiders.oikotieapartment module
+--------------------------------------------------
+
+.. automodule:: finscraper.scrapy_spiders.oikotieapartment
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 finscraper.scrapy\_spiders.vauvapage module
 -------------------------------------------
 

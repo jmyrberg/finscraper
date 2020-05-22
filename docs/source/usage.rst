@@ -1,11 +1,6 @@
-
 *****
 Usage
 *****
-
-
-Basic
-===========
 
 Fetch 10 articles from Iltalehti with :class:`ILArticle <finscraper.spiders.ILArticle>`
 with the help of :class:`scrape <finscraper.spiders.ILArticle.scrape>` and
@@ -29,16 +24,12 @@ Use :class:`save <finscraper.spiders.ILArticle.save>` and
     spider = ILArticle.load(save_dir)
     articles = spider.scrape(10).get()  # 20 articles in total
 
+Items are fetched into ``spider.jobdir`` -directory which **is destroyed
+together with the** ``spider`` **-object unless** :class:`spider.save() <finscraper.spiders.ILArticle.save>`
+**have been called**.
 
-The spider will create a temporary directory which can be removed with
-:class:`spider.clear() <finscraper.spiders.ILArticle.clear>`.
-
-
-Advanced
-==============
-
-Because `Scrapy <https://scrapy.org/>`_ is used under the hood, all the 
-`settings available <https://docs.scrapy.org/en/latest/topics/settings.html#built-in-settings-reference>`_ for Scrapy 
+Because `Scrapy <https://scrapy.org/>`_ is used under the hood, any of
+`its settings <https://docs.scrapy.org/en/latest/topics/settings.html#built-in-settings-reference>`_ 
 can be passed into :class:`scrape <finscraper.spiders.ILArticle.scrape>` -method. 
 For example, to limit the number of concurrent requests per domain:
 
