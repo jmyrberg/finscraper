@@ -13,7 +13,7 @@ from finscraper.scrapy_spiders.demipage import _DemiPageSpider, \
 from finscraper.scrapy_spiders.suomi24page import _Suomi24PageSpider, \
     _Suomi24PageItem
 from finscraper.scrapy_spiders.vauvapage import _VauvaPageSpider, \
-    _VauvaPageItem, _VauvaPageSpider
+    _VauvaPageItem
 from finscraper.scrapy_spiders.ylearticle import _YLEArticleSpider, \
     _YLEArticleItem
 from finscraper.scrapy_spiders.oikotieapartment import \
@@ -31,7 +31,7 @@ progress_bar (bool, optional): Whether to enable progress bar or not. This
 log_level (str or None, optional): Logging level to display. Should be in
     ['debug', 'info', 'warn', 'error', 'critical'] or None (disabled).
     Defaults to None.
-    
+
     .. note::
         This parameter can be overridden through Scrapy ``settings``
         (LOG_LEVEL, LOG_ENABLED) within the ``scrape`` -method.
@@ -46,6 +46,7 @@ def _get_docstring(spider_cls, item_cls):
 
 class ISArticle(_SpiderWrapper):
     __doc__ = _get_docstring(_ISArticleSpider, _ISArticleItem)
+
     def __init__(self, jobdir=None, progress_bar=True, log_level=None):
         super(ISArticle, self).__init__(
             spider_cls=_ISArticleSpider,
@@ -57,6 +58,7 @@ class ISArticle(_SpiderWrapper):
 
 class ILArticle(_SpiderWrapper):
     __doc__ = _get_docstring(_ILArticleSpider, _ILArticleItem)
+
     def __init__(self, jobdir=None, progress_bar=True, log_level=None):
         super(ILArticle, self).__init__(
             spider_cls=_ILArticleSpider,
@@ -68,6 +70,7 @@ class ILArticle(_SpiderWrapper):
 
 class YLEArticle(_SpiderWrapper):
     __doc__ = _get_docstring(_YLEArticleSpider, _YLEArticleItem)
+
     def __init__(self, jobdir=None, progress_bar=True, log_level=None):
         super(YLEArticle, self).__init__(
             spider_cls=_YLEArticleSpider,
@@ -79,6 +82,7 @@ class YLEArticle(_SpiderWrapper):
 
 class DemiPage(_SpiderWrapper):
     __doc__ = _get_docstring(_DemiPageSpider, _DemiPageItem)
+
     def __init__(self, jobdir=None, progress_bar=True, log_level=None):
         super(DemiPage, self).__init__(
             spider_cls=_DemiPageSpider,
@@ -90,6 +94,7 @@ class DemiPage(_SpiderWrapper):
 
 class Suomi24Page(_SpiderWrapper):
     __doc__ = _get_docstring(_Suomi24PageSpider, _Suomi24PageItem)
+
     def __init__(self, jobdir=None, progress_bar=True, log_level=None):
         super(Suomi24Page, self).__init__(
             spider_cls=_Suomi24PageSpider,
@@ -101,6 +106,7 @@ class Suomi24Page(_SpiderWrapper):
 
 class VauvaPage(_SpiderWrapper):
     __doc__ = _get_docstring(_VauvaPageSpider, _VauvaPageItem)
+
     def __init__(self, jobdir=None, progress_bar=True, log_level=None):
         super(VauvaPage, self).__init__(
             spider_cls=_VauvaPageSpider,
@@ -112,6 +118,7 @@ class VauvaPage(_SpiderWrapper):
 
 class OikotieApartment(_SpiderWrapper):
     __doc__ = _get_docstring(_OikotieApartmentSpider, _OikotieApartmentItem)
+
     def __init__(self, jobdir=None, progress_bar=True, log_level=None):
         super(OikotieApartment, self).__init__(
             spider_cls=_OikotieApartmentSpider,
@@ -123,6 +130,7 @@ class OikotieApartment(_SpiderWrapper):
 
 class ToriDeal(_SpiderWrapper):
     __doc__ = _get_docstring(_ToriDealSpider, _ToriDealItem)
+
     def __init__(self, jobdir=None, progress_bar=True, log_level=None):
         super(ToriDeal, self).__init__(
             spider_cls=_ToriDealSpider,

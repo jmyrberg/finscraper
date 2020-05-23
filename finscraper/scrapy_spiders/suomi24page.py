@@ -3,18 +3,16 @@
 
 import time
 
-from functools import partial
 
 from scrapy import Item, Field, Selector
 from scrapy.crawler import Spider
-from scrapy.exceptions import DropItem
 from scrapy.linkextractors import LinkExtractor
 from scrapy.loader import ItemLoader
 from scrapy.loader.processors import TakeFirst, Identity, MapCompose, Compose
 
 from finscraper.scrapy_spiders.mixins import FollowAndParseItemMixin
-from finscraper.utils import strip_join, safe_cast_int, strip_elements, \
-    drop_empty_elements
+from finscraper.text_utils import strip_join, safe_cast_int, strip_elements, \
+    drop_empty_elements, paragraph_join
 
 
 class _Suomi24PageSpider(FollowAndParseItemMixin, Spider):
@@ -23,14 +21,14 @@ class _Suomi24PageSpider(FollowAndParseItemMixin, Spider):
     follow_link_extractor = LinkExtractor(
         allow_domains=('keskustelu.suomi24.fi'),
         allow=(),
-        deny=('\?'),
+        deny=(r'\?'),
         deny_domains=(),
         canonicalize=True
     )
     item_link_extractor = LinkExtractor(
         allow_domains=('keskustelu.suomi24.fi'),
         allow=(rf'/t/[0-9]+/[A-z0-9\-]+'),
-        deny=('\?'),
+        deny=(r'\?'),
         deny_domains=(),
         canonicalize=True
     )
@@ -38,62 +36,75 @@ class _Suomi24PageSpider(FollowAndParseItemMixin, Spider):
 
     def __init__(self, *args, **kwargs):
         """Fetch comments from suomi24.fi.
-        
+
         Args:
         """
         super(_Suomi24PageSpider, self).__init__(*args, **kwargs)
 
     def _parse_comment_response(self, response):
-        l = ItemLoader(item=_Suomi24CommentResponseItem(), selector=response)
-        l.add_xpath('author',
+        il = ItemLoader(item=_Suomi24CommentResponseItem(), selector=response)
+        il.add_xpath(
+            'author',
             '//*[contains(@class, "Username")]//text()')
-        l.add_xpath('date',
+        il.add_xpath(
+            'date',
             '//*[contains(@class, "Timestamp")]//text()')
-        l.add_xpath('quotes', '//blockquote//text()', strip_join)
-        l.add_xpath('content', '//p[contains(@class, "Text")]//text()')
-        return l.load_item()
+        il.add_xpath('quotes', '//blockquote//text()', strip_join)
+        il.add_xpath(
+            'content',
+            '//p[contains(@class, "ListItem__Text")]//text()')
+        return il.load_item()
 
     def _parse_comment(self, comment):
-        l = ItemLoader(item=_Suomi24CommentItem(), selector=comment)
-        l.add_xpath('author',
+        il = ItemLoader(item=_Suomi24CommentItem(), selector=comment)
+        il.add_xpath(
+            'author',
             '(//*[contains(@class, "Username")])[1]//text()')
-        l.add_xpath('date',
+        il.add_xpath(
+            'date',
             '(//*[contains(@class, "Timestamp")])[1]//text()')
-        l.add_xpath('quotes',
+        il.add_xpath(
+            'quotes',
             '(//article)[1]//blockquote//text()')
-        l.add_xpath('content',
-            '(//article)[1]//p[contains(@class, "Text")]//text()')
+        il.add_xpath(
+            'content',
+            '(//article)[1]//p[contains(@class, "ListItem__Text")]//text()')
 
         responses = []
         responses_xpath = '//li[contains(@class, "CommentResponsesItem")]'
         for response in comment.xpath(responses_xpath):
             responses.append(
                 self._parse_comment_response(Selector(text=response.get())))
-        l.add_value('responses', responses)
-        return l.load_item()
-    
+        il.add_value('responses', responses)
+        return il.load_item()
+
     def _parse_item(self, resp):
-        l = ItemLoader(item=_Suomi24PageItem(), response=resp)
-        l.add_value('url', resp.url)
-        l.add_value('time', int(time.time()))
-        l.add_xpath('title', '//*[contains(@*, "thread-title")]//text()')
-        l.add_xpath('published',
+        il = ItemLoader(item=_Suomi24PageItem(), response=resp)
+        il.add_value('url', resp.url)
+        il.add_value('time', int(time.time()))
+        il.add_xpath('title', '//*[contains(@*, "thread-title")]//text()')
+        il.add_xpath(
+            'published',
             '(//*[contains(@class, "Timestamp")])[1]//text()')
-        l.add_xpath('author',
+        il.add_xpath(
+            'author',
             '(//*[contains(@class, "Username")])[1]//text()')
-        l.add_xpath('content',
+        il.add_xpath(
+            'content',
             '(//*[contains(@*, "thread-body-text")])[1]//text()')
-        l.add_xpath('n_comments',
+        il.add_xpath(
+            'n_comments',
             '(//*[contains(@*, "stats-comments")])[1]//text()')
-        l.add_xpath('views',
+        il.add_xpath(
+            'views',
             '(//*[contains(@*, "stats-views")])[1]//text()')
-        
+
         comments = []
         comment_xpath = '//li[contains(@class, "CommentItem")]'
         for comment in resp.xpath(comment_xpath):
             comments.append(self._parse_comment(Selector(text=comment.get())))
-        l.add_value('comments', comments)
-        return l.load_item()
+        il.add_value('comments', comments)
+        return il.load_item()
 
 
 class _Suomi24CommentResponseItem(Item):
@@ -117,7 +128,7 @@ class _Suomi24CommentResponseItem(Item):
         output_processor=Identity()
     )
     content = Field(
-        input_processor=strip_join,
+        input_processor=paragraph_join,
         output_processor=TakeFirst()
     )
 
@@ -179,7 +190,7 @@ class _Suomi24PageItem(Item):
         output_processor=TakeFirst()
     )
     content = Field(
-        input_processor=strip_join,
+        input_processor=paragraph_join,
         output_processor=TakeFirst()
     )
     comments = Field(
