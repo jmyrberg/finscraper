@@ -87,10 +87,10 @@ class FollowAndParseItemMixin:
         for link in follow_links:
             if self._follow_selenium:
                 yield SeleniumCallbackRequest(
-                    link.url, callback=self.parse, meta=self.items_meta,
+                    link.url, callback=self.parse, meta=self.follow_meta,
                     selenium_callback=self.follow_selenium_callback,
-                    priority=10, cb_kwargs={'to_parse': True})
+                    priority=10, cb_kwargs={'to_parse': False})
             else:
                 yield Request(
-                    link.url, callback=self.parse, meta=self.items_meta,
-                    priority=10, cb_kwargs={'to_parse': True})
+                    link.url, callback=self.parse, meta=self.follow_meta,
+                    priority=10, cb_kwargs={'to_parse': False})

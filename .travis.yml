@@ -14,6 +14,7 @@ env:
   - SPIDER=ylearticle
   - SPIDER=demipage
   - SPIDER=vauvapage
+  - SPIDER=suomi24page
   - SPIDER=oikotieapartment
   - SPIDER="not spider"
 script: pytest -v -m "$SPIDER"
