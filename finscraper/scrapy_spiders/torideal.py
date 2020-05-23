@@ -3,19 +3,16 @@
 
 import time
 
-from functools import partial
-
 from scrapy import Item, Field, Selector
 from scrapy.crawler import Spider
-from scrapy.exceptions import DropItem
 from scrapy.linkextractors import LinkExtractor
 from scrapy.loader import ItemLoader
 from scrapy.loader.processors import TakeFirst, Identity, MapCompose, \
-    Compose, Join
+    Compose
 
 from finscraper.scrapy_spiders.mixins import FollowAndParseItemMixin
-from finscraper.utils import strip_join, safe_cast_int, strip_elements, \
-    drop_empty_elements, replace
+from finscraper.text_utils import strip_join, drop_empty_elements, \
+    paragraph_join
 
 
 class _ToriDealSpider(FollowAndParseItemMixin, Spider):
@@ -43,7 +40,7 @@ class _ToriDealSpider(FollowAndParseItemMixin, Spider):
 
     def __init__(self, *args, **kwargs):
         """Fetch deals from tori.fi.
-        
+
         Args:
         """
         super(_ToriDealSpider, self).__init__(*args, **kwargs)
@@ -56,27 +53,33 @@ class _ToriDealSpider(FollowAndParseItemMixin, Spider):
             'alt': sel.xpath('//@alt').get(),
             'title': sel.xpath('//@title').get()
         }
-    
+
     def _parse_item(self, resp):
-        l = ItemLoader(item=_ToriDealItem(), response=resp)
-        l.add_value('url', resp.url)
-        l.add_value('time', int(time.time()))
-        l.add_xpath('seller',
+        il = ItemLoader(item=_ToriDealItem(), response=resp)
+        il.add_value('url', resp.url)
+        il.add_value('time', int(time.time()))
+        il.add_xpath(
+            'seller',
             '//div[contains(@id, "seller_info")]//text()')
-        l.add_xpath('name',
+        il.add_xpath(
+            'name',
             '//div[@class="topic"]//*[contains(@itemprop, "name")]//text()')
-        l.add_xpath('description',
+        il.add_xpath(
+            'description',
             '//*[contains(@itemprop, "description")]//text()')
-        l.add_xpath('price',
+        il.add_xpath(
+            'price',
             '//*[contains(@itemprop, "price")]//text()')
-        l.add_xpath('type',
+        il.add_xpath(
+            'type',
             '//td[contains(text(), "Ilmoitustyyppi")]'
             '/following-sibling::td[1]//text()')
-        l.add_xpath('published',
+        il.add_xpath(
+            'published',
             '//td[contains(text(), "Ilmoitus jätetty")]'
             '/following-sibling::td[1]//text()')
-        l.add_xpath('images', '//div[@class="media_container"]//img')
-        return l.load_item()
+        il.add_xpath('images', '//div[@class="media_container"]//img')
+        return il.load_item()
 
 
 class _ToriDealItem(Item):
@@ -101,11 +104,7 @@ class _ToriDealItem(Item):
         output_processor=TakeFirst()
     )
     seller = Field(
-        input_processor=Compose(
-            strip_elements,
-            drop_empty_elements,
-            MapCompose(partial(replace, source='\n', target=' ')),
-            partial(strip_join, join_with='\n')),
+        input_processor=Compose(drop_empty_elements, paragraph_join),
         output_processor=TakeFirst()
     )
     name = Field(
@@ -113,10 +112,7 @@ class _ToriDealItem(Item):
         output_processor=TakeFirst()
     )
     description = Field(
-        input_processor=Compose(
-            strip_elements,
-            MapCompose(partial(replace, source='\n', target=' ')),
-            partial(strip_join, join_with='\n')),
+        input_processor=Compose(drop_empty_elements, paragraph_join),
         output_processor=TakeFirst()
     )
     price = Field(

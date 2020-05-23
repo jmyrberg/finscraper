@@ -7,13 +7,12 @@ from functools import partial
 
 from scrapy import Item, Field, Selector
 from scrapy.crawler import Spider
-from scrapy.exceptions import DropItem
 from scrapy.linkextractors import LinkExtractor
 from scrapy.loader import ItemLoader
 from scrapy.loader.processors import TakeFirst, Identity, MapCompose
 
 from finscraper.scrapy_spiders.mixins import FollowAndParseItemMixin
-from finscraper.utils import strip_join
+from finscraper.text_utils import strip_join, paragraph_join
 
 
 class _YLEArticleSpider(FollowAndParseItemMixin, Spider):
@@ -37,7 +36,7 @@ class _YLEArticleSpider(FollowAndParseItemMixin, Spider):
 
     def __init__(self, *args, **kwargs):
         """Fetch YLE news articles.
-        
+
         Args:
         """
         super(_YLEArticleSpider, self).__init__(*args, **kwargs)
@@ -51,43 +50,51 @@ class _YLEArticleSpider(FollowAndParseItemMixin, Spider):
             'caption': sel.xpath(
                 '//figcaption//text()').getall()
         }
-    
+
     def _parse_item(self, resp):
-        l = ItemLoader(item=_YLEArticleItem(), response=resp)
-        l.add_value('url', resp.url)
-        l.add_value('time', int(time.time()))
-        # Oldskool
-        l.add_xpath('title',
+        il = ItemLoader(item=_YLEArticleItem(), response=resp)
+        il.add_value('url', resp.url)
+        il.add_value('time', int(time.time()))
+
+        # Tradition style
+        il.add_xpath(
+            'title',
             '//article'
             '//div[contains(@class, "article__header")]'
             '//h1[contains(@class, "article__heading")]//text()')
-        l.add_xpath('ingress',
+        il.add_xpath(
+            'ingress',
             '//article'
             '//div[contains(@class, "article__header")]'
             '//p[contains(@class, "article__paragraph")]//text()')
-        l.add_xpath('content',
-            '//article'+
-            '//div[contains(@class, "article__content")]'+
-            '//p[contains(@class, "article__paragraph")]//text()')
-        l.add_xpath('published',
-            '//article'+
-            '//div[contains(@class, "article__header")]'+
-            '//span[contains(@class, "article__date")]//text()')
-        l.add_xpath('author',
-            '//article'+
-            '//span[contains(@class, "author__name")]//text()')
-        l.add_xpath('images',
-            '//article'+
-            '//figure[contains(@class, "article__figure")]')
 
-        # "Modern"
-        l.add_xpath('title',
-            '//article'+
+        pgraphs_xpath = ('//article//div[contains(@class, "article__content")]'
+                         '//p[contains(@class, "article__paragraph")]')
+        content = [''.join(Selector(text=pgraph).xpath('//text()').getall())
+                   for pgraph in resp.xpath(pgraphs_xpath).getall()]
+        il.add_value('content', content)
+
+        il.add_xpath(
+            'published',
+            '//article//div[contains(@class, "article__header")]'
+            '//span[contains(@class, "article__date")]//text()')
+        il.add_xpath(
+            'author',
+            '//article//span[contains(@class, "author__name")]//text()')
+        il.add_xpath(
+            'images',
+            '//article//figure[contains(@class, "article__figure")]')
+
+        # "Modern" style news
+        il.add_xpath(
+            'title',
+            '//article'
             '//h1[contains(@class, "article__feature__heading")]//text()')
-        l.add_xpath('content',
-            '//article'+
+        il.add_xpath(
+            'content',
+            '//article'
             '//p[contains(@class, "article__feature__paragraph")]//text()')
-        return l.load_item()
+        return il.load_item()
 
 
 class _YLEArticleItem(Item):
@@ -119,7 +126,7 @@ class _YLEArticleItem(Item):
         output_processor=TakeFirst()
     )
     content = Field(
-        input_processor=strip_join,
+        input_processor=paragraph_join,
         output_processor=TakeFirst()
     )
     published = Field(

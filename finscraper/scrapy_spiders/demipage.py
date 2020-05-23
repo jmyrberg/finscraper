@@ -3,19 +3,18 @@
 
 import time
 
-from functools import partial
-
 from scrapy import Item, Field, Selector
 from scrapy.crawler import Spider
-from scrapy.exceptions import DropItem
-from scrapy.http import HtmlResponse
-from scrapy.linkextractors import LinkExtractor
 from scrapy.loader import ItemLoader
+from scrapy.linkextractors import LinkExtractor
 from scrapy.loader.processors import TakeFirst, Identity, MapCompose, Compose
+from scrapy.http import HtmlResponse
+
+from selenium.webdriver.support.wait import WebDriverWait
 
 from finscraper.scrapy_spiders.mixins import FollowAndParseItemMixin
-from finscraper.utils import strip_join, safe_cast_int, strip_elements, \
-    drop_empty_elements
+from finscraper.text_utils import strip_join, safe_cast_int, strip_elements, \
+    drop_empty_elements, paragraph_join
 
 
 class _DemiPageSpider(FollowAndParseItemMixin, Spider):
@@ -24,14 +23,14 @@ class _DemiPageSpider(FollowAndParseItemMixin, Spider):
     follow_link_extractor = LinkExtractor(
         allow_domains=('demi.fi'),
         allow=(r'.*\/keskustelu[t]*\/.*'),
-        deny=('\?'),
+        deny=(r'\?'),
         deny_domains=(),
         canonicalize=True
     )
     item_link_extractor = LinkExtractor(
         allow_domains=('demi.fi'),
         allow=(rf'.*/keskustelu/[A-z0-9\-]+'),
-        deny=('\?'),
+        deny=(r'\?'),
         deny_domains=(),
         restrict_xpaths=['//div[contains(@class, "threadItem")]'],
         canonicalize=True
@@ -44,44 +43,66 @@ class _DemiPageSpider(FollowAndParseItemMixin, Spider):
 
     def __init__(self, *args, **kwargs):
         """Fetch comments from demi.fi.
-        
+
         Args:
         """
-        kwargs['items_selenium_callback'] = None  # Enable JS for items
+        kwargs['items_selenium_callback'] = self._wait_item_page
         super(_DemiPageSpider, self).__init__(*args, **kwargs)
 
+    @staticmethod
+    def _wait_item_page(request, spider, driver):
+        # Wait until number of comments corresponds to numbering
+        driver.get(request.url)
+        reply_xpath = '//div[contains(@class, "__reply__")]'
+        numbering_xpath = (
+            f'{reply_xpath}//div[contains(@class, "replyNumbering")]')
+        numbering = driver.find_element_by_xpath(numbering_xpath)
+        try:
+            n_comments = int(numbering.text.split('/')[-1])
+        except Exception:
+            n_comments = 0
+        (WebDriverWait(driver, 2, 0.1).until(
+         lambda d: len(d.find_elements_by_xpath(reply_xpath)) >= n_comments))
+        return HtmlResponse(
+            driver.current_url,
+            body=driver.page_source.encode('utf-8'),
+            encoding='utf-8',
+            request=request
+        )
+
     def _parse_comment(self, comment):
-        l = ItemLoader(item=_DemiCommentItem(), selector=comment)
-        l.add_xpath('author',
+        il = ItemLoader(item=_DemiCommentItem(), selector=comment)
+        il.add_xpath(
+            'author',
             '//span[contains(@class, "discussionItemAuthor")]//text()')
-        l.add_xpath('date',
-            '//span[contains(@class, "__time__")]//text()')
-        l.add_xpath('quotes', '//blockquote//text()')
-        l.add_xpath('content', '//p//text()')
-        l.add_xpath('numbering',
-            '//div[contains(@class, "replyNumbering")]//text()')
-        l.add_xpath('likes', '//span[contains(@class, "LikeCount")]//text()')
-        return l.load_item()
-    
+        il.add_xpath('date', '//span[contains(@class, "__time__")]//text()')
+        il.add_xpath('quotes', '//blockquote//text()')
+        il.add_xpath('content', '//p//text()')
+        il.add_xpath(
+            'numbering', '//div[contains(@class, "replyNumbering")]//text()')
+        il.add_xpath('likes', '//span[contains(@class, "LikeCount")]//text()')
+        return il.load_item()
+
     def _parse_item(self, resp):
-        l = ItemLoader(item=_DemiPageItem(), response=resp)
-        l.add_value('url', resp.url)
-        l.add_value('time', int(time.time()))
-        first_reply = l.nested_xpath(
+        il = ItemLoader(item=_DemiPageItem(), response=resp)
+        il.add_value('url', resp.url)
+        il.add_value('time', int(time.time()))
+        first_reply = il.nested_xpath(
             '//div[contains(@class, "firstReplyContainer")]')
-        first_reply.add_xpath('title',
-            '//div[contains(@class, "__title__")]//text()')
-        first_reply.add_xpath('published',
-            '//span[contains(@class, "__time__")]//text()')
-        l.add_xpath('author',
+        first_reply.add_xpath(
+            'title', '//div[contains(@class, "__title__")]//text()')
+        first_reply.add_xpath(
+            'published', '//span[contains(@class, "__time__")]//text()')
+        il.add_xpath(
+            'author',
             '//span[contains(@class, "discussionItemAuthor")]//text()')
-        
+
         comments = []
         comment_xpath = '//div[contains(@class, "__reply__")]'
         for comment in resp.xpath(comment_xpath):
             comments.append(self._parse_comment(Selector(text=comment.get())))
-        l.add_value('comments', comments)
-        return l.load_item()
+        il.add_value('comments', comments)
+        return il.load_item()
 
 
 class _DemiCommentItem(Item):
@@ -107,7 +128,7 @@ class _DemiCommentItem(Item):
         output_processor=Identity()
     )
     content = Field(
-        input_processor=strip_join,
+        input_processor=paragraph_join,
         output_processor=TakeFirst()
     )
     numbering = Field(

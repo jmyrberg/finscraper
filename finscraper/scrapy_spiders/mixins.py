@@ -4,12 +4,12 @@
 from scrapy import Request
 from scrapy.exceptions import CloseSpider
 
-from finscraper.http import SeleniumCallbackRequest
+from finscraper.request import SeleniumCallbackRequest
 
 
 class FollowAndParseItemMixin:
     """Parse items and follow links based on defined link extractors.
-    
+
     The following needs to be defined when inheriting:
         1) ``item_link_extractor`` -attribute: LinkExtractor that defines \
             the links to parse items from.
@@ -37,6 +37,7 @@ class FollowAndParseItemMixin:
         AttributeError, if required attributes not defined when inheriting.
     """
     itemcount = 0
+
     def __init__(self, follow_meta=None, items_meta=None,
                  follow_selenium_callback=False,
                  items_selenium_callback=False):
@@ -45,8 +46,8 @@ class FollowAndParseItemMixin:
         self.follow_selenium_callback = follow_selenium_callback
         self.items_selenium_callback = items_selenium_callback
 
-        self._follow_selenium = not (self.follow_selenium_callback == False)
-        self._items_selenium = not (self.items_selenium_callback == False)
+        self._follow_selenium = not (self.follow_selenium_callback is False)
+        self._items_selenium = not (self.items_selenium_callback is False)
 
         for attr in ['follow_link_extractor', 'item_link_extractor']:
             if not hasattr(self, attr):
@@ -61,9 +62,9 @@ class FollowAndParseItemMixin:
 
     def parse(self, resp, to_parse=False):
         """Parse items and follow links based on defined link extractors."""
-        if (self.itemcount and 
-            self.itemcount == self.settings.get('CLOSESPIDER_ITEMCOUNT', 0)):
-                raise CloseSpider
+        max_itemcount = self.settings.get('CLOSESPIDER_ITEMCOUNT', 0)
+        if self.itemcount and self.itemcount == max_itemcount:
+            raise CloseSpider
 
         if to_parse:
             yield self._parse_item(resp)
