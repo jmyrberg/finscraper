@@ -10,6 +10,8 @@ from finscraper.scrapy_spiders.isarticle import _ISArticleSpider, \
     _ISArticleItem
 from finscraper.scrapy_spiders.demipage import _DemiPageSpider, \
     _DemiPageItem
+from finscraper.scrapy_spiders.suomi24page import _Suomi24PageSpider, \
+    _Suomi24PageItem
 from finscraper.scrapy_spiders.vauvapage import _VauvaPageSpider, \
     _VauvaPageItem, _VauvaPageSpider
 from finscraper.scrapy_spiders.ylearticle import _YLEArticleSpider, \
@@ -78,6 +80,17 @@ class DemiPage(_SpiderWrapper):
     def __init__(self, jobdir=None, progress_bar=True, log_level=None):
         super(DemiPage, self).__init__(
             spider_cls=_DemiPageSpider,
+            spider_params=dict(),
+            jobdir=jobdir,
+            progress_bar=progress_bar,
+            log_level=log_level)
+
+
+class Suomi24Page(_SpiderWrapper):
+    __doc__ = _get_docstring(_Suomi24PageSpider, _Suomi24PageItem)
+    def __init__(self, jobdir=None, progress_bar=True, log_level=None):
+        super(Suomi24Page, self).__init__(
+            spider_cls=_Suomi24PageSpider,
             spider_params=dict(),
             jobdir=jobdir,
             progress_bar=progress_bar,

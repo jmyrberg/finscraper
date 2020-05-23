@@ -44,6 +44,14 @@ finscraper.scrapy\_spiders.oikotieapartment module
    :undoc-members:
    :show-inheritance:
 
+finscraper.scrapy\_spiders.suomi24page module
+---------------------------------------------
+
+.. automodule:: finscraper.scrapy_spiders.suomi24page
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 finscraper.scrapy\_spiders.vauvapage module
 -------------------------------------------
 
