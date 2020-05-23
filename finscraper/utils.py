@@ -109,13 +109,18 @@ def strip_join(text_list, join_with=' '):
     return joined_text
 
 
+def replace(text, source, target):
+    return text.replace(source, target) if text is not None else None
+
+
 def strip_elements(text_list):
     return [text.strip() for text in text_list if text is not None]
 
 
 def drop_empty_elements(text_list):
     return [text for text in text_list
-            if text is not None and type(text) == str and text.strip() != '']
+            if text is not None or (type(text) == str and text.strip() != '')]
+
 
 def safe_cast_int(text):
     try:

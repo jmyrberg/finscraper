@@ -18,6 +18,8 @@ from finscraper.scrapy_spiders.ylearticle import _YLEArticleSpider, \
     _YLEArticleItem
 from finscraper.scrapy_spiders.oikotieapartment import \
     _OikotieApartmentSpider, _OikotieApartmentItem
+from finscraper.scrapy_spiders.torideal import _ToriDealSpider, \
+    _ToriDealItem
 
 
 __wrapper_doc__ = '''
@@ -113,6 +115,17 @@ class OikotieApartment(_SpiderWrapper):
     def __init__(self, jobdir=None, progress_bar=True, log_level=None):
         super(OikotieApartment, self).__init__(
             spider_cls=_OikotieApartmentSpider,
+            spider_params=dict(),
+            jobdir=jobdir,
+            progress_bar=progress_bar,
+            log_level=log_level)
+
+
+class ToriDeal(_SpiderWrapper):
+    __doc__ = _get_docstring(_ToriDealSpider, _ToriDealItem)
+    def __init__(self, jobdir=None, progress_bar=True, log_level=None):
+        super(ToriDeal, self).__init__(
+            spider_cls=_ToriDealSpider,
             spider_params=dict(),
             jobdir=jobdir,
             progress_bar=progress_bar,

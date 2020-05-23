@@ -52,6 +52,14 @@ finscraper.scrapy\_spiders.suomi24page module
    :undoc-members:
    :show-inheritance:
 
+finscraper.scrapy\_spiders.torideal module
+------------------------------------------
+
+.. automodule:: finscraper.scrapy_spiders.torideal
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 finscraper.scrapy\_spiders.vauvapage module
 -------------------------------------------
 

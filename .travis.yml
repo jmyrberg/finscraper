@@ -16,6 +16,7 @@ env:
   - SPIDER=vauvapage
   - SPIDER=suomi24page
   - SPIDER=oikotieapartment
+  - SPIDER=torideal
   - SPIDER="not spider"
 script: pytest -v -m "$SPIDER"
 jobs:
