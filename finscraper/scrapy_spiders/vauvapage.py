@@ -1,24 +1,22 @@
-"""Module for YLEArticle spider."""
+"""Module for VauvaPage spider."""
 
 
 import time
 
-from functools import partial
 
 from scrapy import Item, Field, Selector
 from scrapy.crawler import Spider
-from scrapy.exceptions import DropItem
 from scrapy.linkextractors import LinkExtractor
 from scrapy.loader import ItemLoader
 from scrapy.loader.processors import TakeFirst, Identity, MapCompose, Compose
 
 from finscraper.scrapy_spiders.mixins import FollowAndParseItemMixin
-from finscraper.utils import strip_join, safe_cast_int, strip_elements, \
+from finscraper.text_utils import strip_join, safe_cast_int, strip_elements, \
     drop_empty_elements
 
 
 class _VauvaPageSpider(FollowAndParseItemMixin, Spider):
-    name = 'ylearticle'
+    name = 'vauvapage'
     start_urls = ['https://vauva.fi']
     follow_link_extractor = LinkExtractor(
         allow_domains=('vauva.fi'),
@@ -38,48 +36,53 @@ class _VauvaPageSpider(FollowAndParseItemMixin, Spider):
 
     def __init__(self, *args, **kwargs):
         """Fetch comments from vauva.fi.
-        
+
         Args:
         """
         super(_VauvaPageSpider, self).__init__(*args, **kwargs)
 
     def _parse_comment(self, comment):
-        l = ItemLoader(item=_VauvaCommentItem(), selector=comment)
-        l.add_xpath('author', '//*[contains(@property, "name")]//text()')
-        l.add_xpath('date', '//div[contains(@class, "post-date")]//text()')
-        l.add_xpath('quotes', '//blockquote//text()', strip_join)
-        l.add_xpath('content', '//p//text()')
-        votes = l.nested_xpath('//span[contains(@class, "voting-count")]')
+        il = ItemLoader(item=_VauvaCommentItem(), selector=comment)
+        il.add_xpath('author', '//*[contains(@property, "name")]//text()')
+        il.add_xpath('date', '//div[contains(@class, "post-date")]//text()')
+        il.add_xpath('quotes', '//blockquote//text()')
+        il.add_xpath('content', '//p//text()')
+        votes = il.nested_xpath('//span[contains(@class, "voting-count")]')
         votes.add_xpath('upvotes', '//li[@class="first"]//text()')
         votes.add_xpath('downvotes', '//li[@class="last"]//text()')
-        return l.load_item()
-    
+        return il.load_item()
+
     def _parse_item(self, resp):
-        l = ItemLoader(item=_VauvaPageItem(), response=resp)
-        l.add_value('url', resp.url)
-        l.add_value('time', int(time.time()))
-        l.add_xpath('title',
+        il = ItemLoader(item=_VauvaPageItem(), response=resp)
+        il.add_value('url', resp.url)
+        il.add_value('time', int(time.time()))
+        il.add_xpath(
+            'title',
             '//article//div[contains(@property, "title")]//text()')
-        l.add_xpath('page',
+        il.add_xpath(
+            'page',
             '//article//li[contains(@class, "pager-current")]//text()')
-        l.add_value('page', ['1'])
-        l.add_xpath('pages',
+        il.add_value('page', ['1'])
+        il.add_xpath(
+            'pages',
             '//article//li[contains(@class, "pager-last")]//text()')
-        l.add_xpath('pages',
+        il.add_xpath(
+            'pages',
             '//article//li[contains(@class, "pager-current")]//text()')
-        l.add_value('pages', ['1'])
-        l.add_xpath('published',
+        il.add_value('pages', ['1'])
+        il.add_xpath(
+            'published',
             '(//article//div[contains(@class, "post-date")])[1]//text()')
-        l.add_xpath('author',
+        il.add_xpath(
+            'author',
             '(//article//*[contains(@property, "name")])[1]//text()')
-        
+
         comments = []
         comment_xpath = '//article//article[contains(@class, "comment")]'
         for comment in resp.xpath(comment_xpath):
             comments.append(self._parse_comment(Selector(text=comment.get())))
-        l.add_value('comments', comments)
-        loaded_item = l.load_item()
-        return loaded_item
+        il.add_value('comments', comments)
+        return il.load_item()
 
 
 class _VauvaCommentItem(Item):

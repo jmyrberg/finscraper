@@ -3,6 +3,8 @@
 
 import time
 
+from functools import partial
+
 from scrapy import Item, Field, Selector
 from scrapy.crawler import Spider
 from scrapy.linkextractors import LinkExtractor
@@ -10,7 +12,7 @@ from scrapy.loader import ItemLoader
 from scrapy.loader.processors import TakeFirst, Identity, MapCompose
 
 from finscraper.scrapy_spiders.mixins import FollowAndParseItemMixin
-from finscraper.utils import strip_join
+from finscraper.text_utils import strip_join, paragraph_join
 
 
 class _ISArticleSpider(FollowAndParseItemMixin, Spider):
@@ -32,9 +34,10 @@ class _ISArticleSpider(FollowAndParseItemMixin, Spider):
         deny_domains=('ravit.is.fi'),
         canonicalize=True
     )
+
     def __init__(self, *args, **kwargs):
         """Fetch IltaSanomat news articles.
-        
+
         Args:
         """
         super(_ISArticleSpider, self).__init__(*args, **kwargs)
@@ -47,28 +50,33 @@ class _ISArticleSpider(FollowAndParseItemMixin, Spider):
             'alt': sel.xpath('//img//@alt').get(),
             'caption': strip_join(sel.xpath('//p//text()').getall())
         }
-    
+
     def _parse_item(self, resp):
-        l = ItemLoader(item=_ISArticleItem(), response=resp)
-        l.add_value('url', resp.url)
-        l.add_value('time', int(time.time()))
-        l.add_xpath('title', '//article//h1//text()')
-        l.add_xpath('ingress',
+        il = ItemLoader(item=_ISArticleItem(), response=resp)
+        il.add_value('url', resp.url)
+        il.add_value('time', int(time.time()))
+        il.add_xpath('title', '//article//h1//text()')
+        il.add_xpath(
+            'ingress',
             '//section//article//p[contains(@class, "ingress")]//text()')
-        l.add_xpath('content',
+        il.add_xpath(
+            'content',
             '//article//p[contains(@class, "body")]//text()')
-        l.add_xpath('published',
+        il.add_xpath(
+            'published',
             '//article//div[contains(@class, "timestamp")]//text()')
-        l.add_xpath('author',
+        il.add_xpath(
+            'author',
             '//article//div[contains(@itemprop, "author")]//text()')
-        l.add_xpath('images',
+        il.add_xpath(
+            'images',
             '//section//article//div[contains(@class, "clearing-container")]')
-        return l.load_item()
+        return il.load_item()
 
 
 class _ISArticleItem(Item):
     """
-    Returns:
+    Returned fields:
         * url (str): URL of the scraped web page.
         * time (int): UNIX timestamp of the scraping.
         * title (str): Title of the article.
@@ -95,7 +103,7 @@ class _ISArticleItem(Item):
         output_processor=TakeFirst()
     )
     content = Field(
-        input_processor=strip_join,
+        input_processor=paragraph_join,
         output_processor=TakeFirst()
     )
     published = Field(

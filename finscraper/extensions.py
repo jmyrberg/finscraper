@@ -6,7 +6,7 @@ import logging
 from collections import defaultdict
 
 from scrapy import signals
-from scrapy.exceptions import NotConfigured, CloseSpider
+from scrapy.exceptions import NotConfigured
 
 from tqdm.auto import tqdm
 
@@ -15,7 +15,7 @@ from finscraper.utils import TqdmLogger
 
 class ProgressBar:
     """Scrapy extension thay displays progress bar.
-    
+
     Enabled via ``PROGRESS_BAR_ENABLED`` Scrapy setting.
     """
     def __init__(self, crawler):

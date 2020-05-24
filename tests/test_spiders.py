@@ -4,10 +4,14 @@
 import time
 
 import pytest
+
+from finscraper.spiders import ILArticle, ISArticle, YLEArticle, VauvaPage, \
+    OikotieApartment, DemiPage, Suomi24Page, ToriDeal
+
+from tests.utils import calc_field_emptiness
+
+
 pytestmark = [pytest.mark.spider]
-
-from finscraper.spiders import ILArticle, ISArticle, YLEArticle, VauvaPage
-
 
 # Spiders can be added here, and basic tests will be set up automatically
 spiders = [
@@ -30,19 +34,42 @@ spiders = [
         'mark': pytest.mark.ylearticle
     },
     {
+        'class': DemiPage,
+        'params': [None],
+        'n_fields': 6,
+        'mark': pytest.mark.demipage
+    },
+    {
+        'class': Suomi24Page,
+        'params': [None],
+        'n_fields': 9,
+        'mark': pytest.mark.suomi24page
+    },
+    {
         'class': VauvaPage,
         'params': [None],
         'n_fields': 8,
         'mark': pytest.mark.vauvapage
+    },
+    {
+        'class': OikotieApartment,
+        'params': [None],
+        'n_fields': 80,
+        'mark': pytest.mark.oikotieapartment
+    },
+    {
+        'class': ToriDeal,
+        'params': [None],
+        'n_fields': 9,
+        'mark': pytest.mark.torideal
     }
 ]
-
 
 scrape_cases = [pytest.param(s['class'], p, s['n_fields'], marks=s['mark'])
                 for s in spiders for p in s['params']]
 
 other_cases = [pytest.param(s['class'], p, marks=s['mark'])
-               for s in spiders for p in s['params']]         
+               for s in spiders for p in s['params']]
 
 
 @pytest.fixture(scope='function')
@@ -52,7 +79,7 @@ def spider_params(request):
 
 @pytest.mark.parametrize('spider_cls, spider_params, n_fields', scrape_cases,
                          indirect=['spider_params'])
-def test_scraping(spider_cls, spider_params, n_fields, n_items=10):
+def test_scraping(spider_cls, spider_params, n_fields, capsys, n_items=10):
     # Scraping
     spider = spider_cls(**spider_params).scrape(n_items)
     df = spider.get()
@@ -62,6 +89,12 @@ def test_scraping(spider_cls, spider_params, n_fields, n_items=10):
     # Continue scraping
     df2 = spider.scrape(1).get()
     assert len(df2) > len(df)
+
+    # Field emptiness
+    emptiness = calc_field_emptiness(df2)
+    with capsys.disabled():
+        print(f'\n{emptiness.to_string(index=False)}\n')
+    assert not (emptiness['empty_pct'] == 100).all()
 
 
 @pytest.mark.parametrize('spider_cls, spider_params', other_cases,
