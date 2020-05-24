@@ -37,6 +37,11 @@ spider = ISArticle().scrape(10)
 articles = spider.get()
 ```
 
+The API is similar for all the spiders:
+
+![Finscraper in action](docs/finscraper.gif)
+
+
 ## Contributing
 
 When websites change, spiders tend to break. I can't make a promise to keep this
