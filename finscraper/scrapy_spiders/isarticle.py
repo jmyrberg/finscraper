@@ -3,8 +3,6 @@
 
 import time
 
-from functools import partial
-
 from scrapy import Item, Field, Selector
 from scrapy.crawler import Spider
 from scrapy.linkextractors import LinkExtractor
@@ -59,9 +57,12 @@ class _ISArticleSpider(FollowAndParseItemMixin, Spider):
         il.add_xpath(
             'ingress',
             '//section//article//p[contains(@class, "ingress")]//text()')
-        il.add_xpath(
-            'content',
-            '//article//p[contains(@class, "body")]//text()')
+
+        pgraphs_xpath = '//article//p[contains(@class, "body")]'
+        content = [''.join(Selector(text=pgraph).xpath('//text()').getall())
+                   for pgraph in resp.xpath(pgraphs_xpath).getall()]
+        il.add_value('content', content)
+
         il.add_xpath(
             'published',
             '//article//div[contains(@class, "timestamp")]//text()')

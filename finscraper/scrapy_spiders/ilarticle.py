@@ -3,8 +3,6 @@
 
 import time
 
-from functools import partial
-
 from scrapy import Item, Field, Selector
 from scrapy.crawler import Spider
 from scrapy.linkextractors import LinkExtractor
