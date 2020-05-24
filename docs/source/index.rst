@@ -9,6 +9,7 @@
    installation
    spiders
    usage
+   contributing
 
 
 .. toctree::

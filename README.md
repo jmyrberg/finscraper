@@ -39,13 +39,12 @@ articles = spider.get()
 
 The API is similar for all the spiders:
 
-![Finscraper in action](docs/finscraper.gif)
+![Finscraper in action](https://github.com/jmyrberg/finscraper/blob/master/docs/finscraper.gif)
 
 
 ## Contributing
 
-When websites change, spiders tend to break. I can't make a promise to keep this
-repository up-to-date all by myself - pull requests are more than welcome!
+Please see [CONTRIBUTING.md](https://github.com/jmyrberg/finscraper/blob/master/CONTRIBUTING.md) for more information.
 
 
 ---
