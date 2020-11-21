@@ -28,6 +28,22 @@ finscraper.middlewares module
    :undoc-members:
    :show-inheritance:
 
+finscraper.pipelines module
+---------------------------
+
+.. automodule:: finscraper.pipelines
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+finscraper.request module
+-------------------------
+
+.. automodule:: finscraper.request
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 finscraper.settings module
 --------------------------
 
@@ -40,6 +56,14 @@ finscraper.spiders module
 -------------------------
 
 .. automodule:: finscraper.spiders
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+finscraper.text\_utils module
+-----------------------------
+
+.. automodule:: finscraper.text_utils
    :members:
    :undoc-members:
    :show-inheritance:

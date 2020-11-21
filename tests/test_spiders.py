@@ -4,13 +4,14 @@
 import time
 
 import pytest
-pytestmark = [pytest.mark.spider]
 
 from finscraper.spiders import ILArticle, ISArticle, YLEArticle, VauvaPage, \
-    OikotieApartment
+    OikotieApartment, DemiPage, Suomi24Page, ToriDeal
 
 from tests.utils import calc_field_emptiness
 
+
+pytestmark = [pytest.mark.spider]
 
 # Spiders can be added here, and basic tests will be set up automatically
 spiders = [
@@ -33,6 +34,18 @@ spiders = [
         'mark': pytest.mark.ylearticle
     },
     {
+        'class': DemiPage,
+        'params': [None],
+        'n_fields': 6,
+        'mark': pytest.mark.demipage
+    },
+    {
+        'class': Suomi24Page,
+        'params': [None],
+        'n_fields': 9,
+        'mark': pytest.mark.suomi24page
+    },
+    {
         'class': VauvaPage,
         'params': [None],
         'n_fields': 8,
@@ -43,15 +56,20 @@ spiders = [
         'params': [None],
         'n_fields': 80,
         'mark': pytest.mark.oikotieapartment
+    },
+    {
+        'class': ToriDeal,
+        'params': [None],
+        'n_fields': 9,
+        'mark': pytest.mark.torideal
     }
 ]
-
 
 scrape_cases = [pytest.param(s['class'], p, s['n_fields'], marks=s['mark'])
                 for s in spiders for p in s['params']]
 
 other_cases = [pytest.param(s['class'], p, marks=s['mark'])
-               for s in spiders for p in s['params']]         
+               for s in spiders for p in s['params']]
 
 
 @pytest.fixture(scope='function')

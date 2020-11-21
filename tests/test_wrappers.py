@@ -11,7 +11,7 @@ from finscraper.spiders import ISArticle, ILArticle
 def test_spider_save_load_with_jobdir():
     jobdir = '../jobdir'
     spider = ISArticle(jobdir=jobdir)
-    
+
     save_jobdir = spider.save()
     loaded_spider = ISArticle.load(save_jobdir)
 
@@ -22,7 +22,7 @@ def test_spider_save_load_with_jobdir():
 
 def test_spider_save_load_without_jobdir():
     spider = ISArticle()
-    
+
     save_jobdir = spider.save()
     loaded_spider = ISArticle.load(save_jobdir)
 
@@ -77,9 +77,10 @@ def test_spider_logging():
     # Attribute set
     try:
         spider.log_level = 'test'
+        assert False
     except ValueError:
         assert True
-    except:
+    except Exception:
         assert False
     spider.log_level = 'info'
     assert spider.log_level == logging.INFO
@@ -91,13 +92,13 @@ def test_spider_progress_bar():
     # Progress bar true by default
     spider = ILArticle()
     spider.scrape(1)
-    assert spider.progress_bar == True
+    assert spider.progress_bar is True
     assert len(spider.get()) > 0
 
     # Progress bar disabled, when log level given
     spider = ILArticle(log_level='info')
     spider.scrape(1)
-    assert spider.progress_bar == False
+    assert spider.progress_bar is False
     assert len(spider.get()) > 0
 
     # TODO: Test the output

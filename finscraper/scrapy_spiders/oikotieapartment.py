@@ -3,21 +3,17 @@
 
 import time
 
-from functools import partial
-
-from scrapy import Item, Field, Selector, Request
+from scrapy import Item, Field, Request
 from scrapy.crawler import Spider
-from scrapy.exceptions import DropItem, CloseSpider
+from scrapy.exceptions import CloseSpider
 from scrapy.http import HtmlResponse
 from scrapy.linkextractors import LinkExtractor
 from scrapy.loader import ItemLoader
-from scrapy.loader.processors import TakeFirst, Identity, MapCompose, \
-    Compose, Join
+from scrapy.loader.processors import TakeFirst, Identity, Compose
 
-from finscraper.http import SeleniumCallbackRequest
-from finscraper.scrapy_spiders.mixins import FollowAndParseItemMixin
-from finscraper.utils import strip_join, safe_cast_int, strip_elements, \
-    drop_empty_elements
+from finscraper.request import SeleniumCallbackRequest
+from finscraper.text_utils import strip_join, drop_empty_elements, \
+    paragraph_join
 
 
 class _OikotieApartmentSpider(Spider):
@@ -26,14 +22,14 @@ class _OikotieApartmentSpider(Spider):
     follow_link_extractor = LinkExtractor(
         allow_domains=('asunnot.oikotie.fi'),
         allow=(r'.*\/myytavat-asunnot\/.*'),
-        deny=('.*?origin\=.*'),
+        deny=(r'.*?origin\=.*'),
         deny_domains=(),
         canonicalize=True
     )
     item_link_extractor = LinkExtractor(
         allow_domains=('asunnot.oikotie.fi'),
         allow=(rf'.*/myytavat-asunnot/.*/[0-9]+'),
-        deny=('.*?origin\=.*'),
+        deny=(r'.*?origin\=.*'),
         deny_domains=(),
         canonicalize=True
     )
@@ -41,19 +37,6 @@ class _OikotieApartmentSpider(Spider):
         'ROBOTSTXT_OBEY': False,  # No robots.txt, will fail with yes
         'DOWNLOADER_MIDDLEWARES': {
             'finscraper.middlewares.SeleniumCallbackMiddleware': 800
-        },
-        'DEFAULT_REQUEST_HEADERS': {
-            'Connection': 'keep-alive',
-            'Cache-Control': 'max-age=0',
-            'DNT': '1',
-            'Upgrade-Insecure-Requests': '1',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36',
-            'Sec-Fetch-User': '?1',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
-            'Sec-Fetch-Site': 'same-origin',
-            'Sec-Fetch-Mode': 'navigate',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'en-US,en;q=0.9',
         }
     }
     itemcount = 0
@@ -97,7 +80,7 @@ class _OikotieApartmentSpider(Spider):
         'Neliöhinta': 'price_per_sq',
         'Velkaosuus': 'share_of_liabilities',
         'Kiinnitykset': 'mortgages',
-        
+
         'Rahoitusvastike': 'financial_charge',
         'Hoitovastike': 'condominium_payment',
         'Yhtiövastike': 'maintenance_charge',
@@ -137,7 +120,7 @@ class _OikotieApartmentSpider(Spider):
 
     def __init__(self, *args, **kwargs):
         """Fetch oikotie.fi apartments.
-        
+
         Args:
         """
         kwargs['follow_request_type'] = SeleniumCallbackRequest
@@ -151,8 +134,10 @@ class _OikotieApartmentSpider(Spider):
     @staticmethod
     def _handle_start(request, spider, driver):
         driver.get(request.url)
-        driver.find_element_by_xpath(
-            '//div[contains(@class, "sccm-button-green")]').click()
+        policy_modal = driver.find_element_by_xpath(
+            '//div[contains(@class, "sccm-button-green")]')
+        if policy_modal:
+            policy_modal.click()
         return HtmlResponse(
             driver.current_url,
             body=driver.page_source.encode('utf-8'),
@@ -162,9 +147,9 @@ class _OikotieApartmentSpider(Spider):
 
     def parse(self, resp, to_parse=False):
         """Parse items and follow links based on defined link extractors."""
-        if (self.itemcount and 
-            self.itemcount == self.settings.get('CLOSESPIDER_ITEMCOUNT', 0)):
-                raise CloseSpider
+        max_itemcount = self.settings.get('CLOSESPIDER_ITEMCOUNT', 0)
+        if self.itemcount and self.itemcount == max_itemcount:
+            raise CloseSpider
 
         if to_parse:
             yield self._parse_item(resp)
@@ -181,53 +166,64 @@ class _OikotieApartmentSpider(Spider):
         for link in follow_links:
             yield SeleniumCallbackRequest(
                 link.url, callback=self.parse, priority=10)
-    
+
     def _parse_item(self, resp):
-        l = ItemLoader(item=_OikotieApartmentItem(), response=resp)
-        l.add_value('url', resp.url)
-        l.add_value('time', int(time.time()))
-        
+        il = ItemLoader(item=_OikotieApartmentItem(), response=resp)
+        il.add_value('url', resp.url)
+        il.add_value('time', int(time.time()))
+
         # Apartment info
-        l.add_xpath('title', '//title//text()')
-        l.add_xpath('overview',
+        il.add_xpath('title', '//title//text()')
+        il.add_xpath(
+            'overview',
             '//div[contains(@class, "listing-overview")]//text()')
 
         # From tables
         table_xpath = '//dt[text()="{title}"]/following-sibling::dd[1]//text()'
         for title, field in self.title2field.items():
-            l.add_xpath(field, table_xpath.format(title=title))
+            il.add_xpath(field, table_xpath.format(title=title))
 
         # Contact information
-        l.add_xpath(
+        il.add_xpath(
             'contact_person_name',
             '//div[contains(@class, "listing-person__details-item--big")]'
             '//text()'
         )
-        l.add_xpath(
+        il.add_xpath(
             'contact_person_job_title',
             '//div[contains(@class, "listing-person__details-item--waisted")]'
             '//text()'
         )
-        l.add_xpath(
+        il.add_xpath(
             'contact_person_phone_number',
             '(//div[contains(@class, "listing-person__details-item'
             '--sm-top-margin")]/span)[2]//text()'
         )
-        l.add_xpath(
+        il.add_xpath(
             'contact_person_company',
             '//div[@class="listing-company__name"]/a/span//text()'
         )
-        l.add_xpath('contact_person_email', '(//p)[1]//text()')
-        return l.load_item()
+        il.add_xpath('contact_person_email', '(//p)[1]//text()')
+        return il.load_item()
 
 
 class _OikotieApartmentItem(Item):
     __doc__ = """
-    Returned page fields:
+    Returned fields:
         * url (str): URL of the scraped web page.
         * time (int): UNIX timestamp of the scraping.
-        TODO
-    """
+        * title (str): Title of the web browser tab.
+        * overview (str): Overview text of the apartment.
+        * contact_person_name (str): Name of the contact person.
+        * contact_person_job_title (str): Job title of the contact person.
+        * contact_person_phone_number (str): Phone number of the contact \
+            person.
+        * contact_person_company (str): Company of the contact person.
+        """.strip() + (
+            '\n' +
+            '\n'.join(f'{" " * 8}* {field} (str): {desc}'
+                      for desc, field
+                      in _OikotieApartmentSpider.title2field.items()))
     url = Field(
         input_processor=Identity(),
         output_processor=TakeFirst()
@@ -242,7 +238,7 @@ class _OikotieApartmentItem(Item):
         output_processor=TakeFirst()
     )
     overview = Field(
-        input_processor=strip_join,
+        input_processor=Compose(drop_empty_elements, paragraph_join),
         output_processor=TakeFirst()
     )
     # Basic information

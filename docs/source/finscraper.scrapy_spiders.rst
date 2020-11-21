@@ -4,6 +4,14 @@ finscraper.scrapy\_spiders package
 Submodules
 ----------
 
+finscraper.scrapy\_spiders.demipage module
+------------------------------------------
+
+.. automodule:: finscraper.scrapy_spiders.demipage
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 finscraper.scrapy\_spiders.ilarticle module
 -------------------------------------------
 
@@ -24,6 +32,30 @@ finscraper.scrapy\_spiders.mixins module
 ----------------------------------------
 
 .. automodule:: finscraper.scrapy_spiders.mixins
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+finscraper.scrapy\_spiders.oikotieapartment module
+--------------------------------------------------
+
+.. automodule:: finscraper.scrapy_spiders.oikotieapartment
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+finscraper.scrapy\_spiders.suomi24page module
+---------------------------------------------
+
+.. automodule:: finscraper.scrapy_spiders.suomi24page
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+finscraper.scrapy\_spiders.torideal module
+------------------------------------------
+
+.. automodule:: finscraper.scrapy_spiders.torideal
    :members:
    :undoc-members:
    :show-inheritance:

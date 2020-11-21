@@ -6,15 +6,18 @@
 
 The library provides an easy-to-use API for fetching data from various Finnish websites:
 
-| Website     | URL                                         | Type              | Spider API class   |
-| ----------- | ------------------------------------------- | ----------------- | ------------------ |
-| IltaSanomat | https://www.is.fi                           | News article      | `ISArticle`        |
-| Iltalehti   | https://www.il.fi                           | News article      | `ILArticle`        |
-| YLE         | https://www.yle.fi/uutiset                  | News article      | `YLEArticle`       |
-| Vauva       | https://www.vauva.fi                        | Discussion thread | `VauvaPage`        |
-| Oikotie     | https://asunnot.oikotie.fi/myytavat-asunnot | Apartment ad      | `OikotieApartment` |
+| Website                                                        | Type              | Spider API class   |
+| -------------------------------------------------------------- | ----------------- | ------------------ |
+| [Ilta-Sanomat](https://www.is.fi)                              | News article      | `ISArticle`        |
+| [Iltalehti](https://www.il.fi)                                 | News article      | `ILArticle`        |
+| [YLE Uutiset](https://www.yle.fi/uutiset)                      | News article      | `YLEArticle`       |
+| [Demi](https://demi.fi)                                        | Discussion thread | `DemiPage`         |
+| [Suomi24](https://keskustelu.suomi24.fi)                       | Discussion thread | `Suomi24Page`      |
+| [Vauva](https://www.vauva.fi)                                  | Discussion thread | `VauvaPage`        |
+| [Oikotie Asunnot](https://asunnot.oikotie.fi/myytavat-asunnot) | Apartment ad      | `OikotieApartment` |
+| [Tori](https://www.tori.fi)                                    | Item deal         | `ToriDeal`         |
 
-Documentation is available at [https://finscraper.readthedocs.io](https://finscraper.readthedocs.io) and simple online demo [here](https://storage.googleapis.com/jmyrberg/index.html#/demo-projects/finscraper).
+Documentation is available at [https://finscraper.readthedocs.io](https://finscraper.readthedocs.io) and [simple online demo here](https://storage.googleapis.com/jmyrberg/index.html#/demo-projects/finscraper).
 
 
 ## Installation
@@ -24,7 +27,7 @@ Documentation is available at [https://finscraper.readthedocs.io](https://finscr
 
 ## Quickstart
 
-Fetch 10 news articles as a pandas DataFrame from [IltaSanomat](https://is.fi):
+Fetch 10 news articles as a pandas DataFrame from [Ilta-Sanomat](https://is.fi):
 
 ```python
 from finscraper.spiders import ISArticle
@@ -34,10 +37,14 @@ spider = ISArticle().scrape(10)
 articles = spider.get()
 ```
 
+The API is similar for all the spiders:
+
+![Finscraper in action](https://github.com/jmyrberg/finscraper/blob/master/docs/finscraper.gif)
+
+
 ## Contributing
 
-When websites change, spiders tend to break. I can't make a promise to keep this
-repository up-to-date all by myself - pull requests are more than welcome!
+Please see [CONTRIBUTING.md](https://github.com/jmyrberg/finscraper/blob/master/CONTRIBUTING.md) for more information.
 
 
 ---

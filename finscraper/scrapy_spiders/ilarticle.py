@@ -10,7 +10,7 @@ from scrapy.loader import ItemLoader
 from scrapy.loader.processors import TakeFirst, Identity, MapCompose
 
 from finscraper.scrapy_spiders.mixins import FollowAndParseItemMixin
-from finscraper.utils import strip_join
+from finscraper.text_utils import strip_join, paragraph_join
 
 
 class _ILArticleSpider(FollowAndParseItemMixin, Spider):
@@ -34,7 +34,7 @@ class _ILArticleSpider(FollowAndParseItemMixin, Spider):
 
     def __init__(self, *args, **kwargs):
         """Fetch Iltalehti news articles.
-        
+
         Args:
         """
         super(_ILArticleSpider, self).__init__(*args, **kwargs)
@@ -48,24 +48,31 @@ class _ILArticleSpider(FollowAndParseItemMixin, Spider):
             'caption': sel.xpath(
                 '//div[contains(@class, "media-caption")]//text()').getall()
         }
-    
+
     def _parse_item(self, resp):
-        l = ItemLoader(item=_ILArticleItem(), response=resp)
-        l.add_value('url', resp.url)
-        l.add_value('time', int(time.time()))
-        l.add_xpath('title',
+        il = ItemLoader(item=_ILArticleItem(), response=resp)
+        il.add_value('url', resp.url)
+        il.add_value('time', int(time.time()))
+        il.add_xpath(
+            'title',
             '//article//h1[contains(@class, "article-headline")]//text()')
-        l.add_xpath('ingress',
+        il.add_xpath(
+            'ingress',
             '//article//div[contains(@class, "article-description")]//text()')
-        l.add_xpath('content',
-            '//article//div[contains(@class, "article-body")]//text()')
-        l.add_xpath('published',
-            '//time//text()')
-        l.add_xpath('author',
+
+        pgraphs_xpath = '//article//div[contains(@class, "article-body")]//p'
+        content = [''.join(Selector(text=pgraph).xpath('//text()').getall())
+                   for pgraph in resp.xpath(pgraphs_xpath).getall()]
+        il.add_value('content', content)
+
+        il.add_xpath('published', '//time//text()')
+        il.add_xpath(
+            'author',
             '//article//div[contains(@class, "author-name")]//text()')
-        l.add_xpath('images',
+        il.add_xpath(
+            'images',
             '//article//div[contains(@class, "article-image")]')
-        return l.load_item()
+        return il.load_item()
 
 
 class _ILArticleItem(Item):
@@ -97,7 +104,7 @@ class _ILArticleItem(Item):
         output_processor=TakeFirst()
     )
     content = Field(
-        input_processor=strip_join,
+        input_processor=paragraph_join,
         output_processor=TakeFirst()
     )
     published = Field(

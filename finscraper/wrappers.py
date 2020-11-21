@@ -7,7 +7,6 @@ import multiprocessing as mp
 import pickle
 import platform
 import shutil
-import sys
 import tempfile
 import uuid
 import weakref
@@ -17,11 +16,8 @@ from pathlib import Path
 
 import pandas as pd
 
-from scrapy import Request
-from scrapy.crawler import CrawlerProcess, CrawlerRunner
-from scrapy.exceptions import CloseSpider
+from scrapy.crawler import CrawlerRunner
 from scrapy.settings import Settings
-from scrapy.spiders import Spider
 from scrapy.utils.log import configure_logging
 
 from twisted.internet import reactor
@@ -39,7 +35,6 @@ def _run_as_process(func, spider_cls, spider_params, settings):
     # (queuehandler --> listener --> root logger --> streamhandler)
     progress_bar_enabled = settings['PROGRESS_BAR_ENABLED']
     log_enabled = settings['LOG_ENABLED']
-    log_stdout = settings['LOG_STDOUT']
     q_log = None
     ql = None
     if log_enabled or progress_bar_enabled:
@@ -57,7 +52,7 @@ def _run_as_process(func, spider_cls, spider_params, settings):
         logger = logging.getLogger()
         logger.setLevel(settings.get('LOG_LEVEL'))
         logger.addHandler(handler)
-    
+
     # Start function as a separate process
     q = mp.Queue()
     p = mp.Process(target=func,
@@ -122,13 +117,13 @@ class _SpiderWrapper:
 
         self.log_level = log_level
         self.progress_bar = progress_bar and self.log_level is None
-        
+
         self._items_save_path = self._jobdir / 'items.jl'
         self._spider_save_path = self._jobdir / 'spider.pkl'
 
         self._finalizer = weakref.finalize(
             self, shutil.rmtree, self._jobdir, ignore_errors=True)
-        
+
         # Note: Parameters cannot be changed outside by setting them
         for param in self.spider_params:
             setattr(self, param, self.spider_params[param])
@@ -136,7 +131,7 @@ class _SpiderWrapper:
     @property
     def jobdir(self):
         """Working directory of the spider.
-        
+
         Can be changed after initialization of a spider.
         """
         return str(self._jobdir)
@@ -144,7 +139,7 @@ class _SpiderWrapper:
     @property
     def log_level(self):
         """Logging level of the spider.
-        
+
         This attribute can be changed after initialization of a spider.
         """
         return self._log_level
@@ -153,7 +148,7 @@ class _SpiderWrapper:
     def log_level(self, log_level):
         if log_level is None:
             self._log_level = log_level
-        elif (type(log_level) == str 
+        elif (type(log_level) == str
               and log_level.strip().lower() in self._log_levels):
             self._log_level = self._log_levels[log_level.strip().lower()]
         else:
@@ -163,7 +158,7 @@ class _SpiderWrapper:
     @property
     def progress_bar(self):
         """Whether progress bar is enabled or not.
-        
+
         Can be changed after initialization of a spider.
         """
         return self._progress_bar
@@ -178,7 +173,7 @@ class _SpiderWrapper:
     @property
     def items_save_path(self):
         """Save of path of the scraped items.
-        
+
         Cannot be changed after initialization of a spider.
         """
         return str(self._items_save_path)
@@ -186,7 +181,7 @@ class _SpiderWrapper:
     @property
     def spider_save_path(self):
         """Save path of the spider.
-        
+
         Cannot be changed after initialization of a spider.
         """
         return str(self._spider_save_path)
@@ -195,25 +190,25 @@ class _SpiderWrapper:
                     settings=None):
         _settings = Settings()
         _settings.setmodule('finscraper.settings', priority='project')
-        
+
         _settings['JOBDIR'] = self.jobdir
         _settings['FEEDS'] = {self.items_save_path: {'format': 'jsonlines'}}
-        
+
         _settings['CLOSESPIDER_ITEMCOUNT'] = itemcount
         _settings['CLOSESPIDER_TIMEOUT'] = timeout
         _settings['CLOSESPIDER_PAGECOUNT'] = pagecount
         _settings['CLOSESPIDER_ERRORCOUNT'] = errorcount
-        
+
         _settings['LOG_STDOUT'] = True
         _settings['LOG_LEVEL'] = self.log_level or logging.NOTSET
         _settings['LOG_ENABLED'] = self.log_level is not None
         # Logging dominates progress bar
         _settings['PROGRESS_BAR_ENABLED'] = self.progress_bar
-        
+
         # Will always be prioritized --> conflicts are possible
         if settings is not None:
             _settings.update(settings)
-        
+
         try:
             _run_as_process(
                 func=_run_spider_func,
@@ -223,10 +218,10 @@ class _SpiderWrapper:
             )
         except KeyboardInterrupt:
             pass
-    
+
     def scrape(self, n=10, timeout=60, settings=None):
         """Scrape given number of items.
-        
+
         Args:
             n (int, optional): Number of items to attempt to scrape. Zero
                 corresponds to no limit. Defaults to 10.
@@ -236,7 +231,7 @@ class _SpiderWrapper:
                 Defaults to None, which correspond to default settings.
                 See list of available settings at:
                 https://docs.scrapy.org/en/latest/topics/settings.html.
-        
+
         Returns:
             self
         """
@@ -245,7 +240,7 @@ class _SpiderWrapper:
 
     def get(self, fmt='df'):
         """Return scraped data as DataFrame or list.
-        
+
         Args:
             fmt (str, optional): Format to return parsed items as. Should be
                 in ['df', 'list']. Defaults to 'df'.
@@ -268,10 +263,10 @@ class _SpiderWrapper:
             return jsonlines
         elif fmt == 'df':
             return pd.DataFrame(jsonlines)
-    
+
     def save(self):
         """Save spider in ``jobdir`` for later use.
-        
+
         Returns:
             str: Path to job directory.
         """
@@ -284,10 +279,10 @@ class _SpiderWrapper:
     @classmethod
     def load(cls, jobdir):
         """Load existing spider from ``jobdir``.
-        
+
         Args:
             jobdir (str): Path to job directory.
-        
+
         Returns:
             Spider loaded from job directory.
         """
