@@ -11,6 +11,8 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.loader import ItemLoader
 from scrapy.loader.processors import TakeFirst, Identity, Compose
 
+from selenium.common.exceptions import NoSuchElementException
+
 from finscraper.request import SeleniumCallbackRequest
 from finscraper.text_utils import strip_join, drop_empty_elements, \
     paragraph_join
@@ -134,10 +136,12 @@ class _OikotieApartmentSpider(Spider):
     @staticmethod
     def _handle_start(request, spider, driver):
         driver.get(request.url)
-        policy_modal = driver.find_element_by_xpath(
-            '//div[contains(@class, "sccm-button-green")]')
-        if policy_modal:
-            policy_modal.click()
+        try:  # Accept cookies modal
+            modal = driver.find_element_by_xpath(
+                '//div[contains(@class, "sccm-button-green")]')
+            modal.click()
+        except NoSuchElementException:
+            pass
         return HtmlResponse(
             driver.current_url,
             body=driver.page_source.encode('utf-8'),

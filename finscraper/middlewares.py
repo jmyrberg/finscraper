@@ -12,8 +12,6 @@ from selenium.webdriver.chrome.options import Options
 from finscraper.request import SeleniumCallbackRequest
 from finscraper.utils import get_chromedriver
 
-class SeleniumCallbackMiddleware:
-    """Middleware that processes request with given callback."""
 
 class SeleniumCallbackMiddleware:
     """Middleware that processes request with given callback.
