@@ -8,6 +8,7 @@ jobs:
   scope:
     name: Prepare matrix for testing
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     outputs:
       spiders: ${{ steps.scope.outputs.spiders }}
     steps:
@@ -35,6 +36,7 @@ jobs:
     name: Test
     needs: [scope]
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
