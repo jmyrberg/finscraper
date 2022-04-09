@@ -18,10 +18,9 @@ jobs:
         branchName=${GITHUB_REF#refs/heads/}
         spiderName=${branchName%%/*}
         allSpiders=$(cat SPIDERS | jq -R -s -c 'split("\n")')
+        echo $allSpiders
         isSpiderBranch=$(echo $allSpiders | jq -r --arg spiderName "$spiderName" '.index($spiderName)')
         echo $isSpiderBranch
-        yesSpiderBranch=$(echo $allSpiders | jq '.index("ilarticle")')
-        echo $yesSpiderBranch
         echo "::set-output name=spiders::$allSpiders"
 
   test:
