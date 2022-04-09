@@ -26,8 +26,7 @@ from finscraper.utils import QueueHandler
 
 
 # https://turtlemonvh.github.io/python-multiprocessing-and-corefoundation-libraries.html
-if (platform.python_version() >= '3.8' and
-        platform.system() in ('Darwin', 'Linux')):
+if platform.system() in ('Darwin', 'Linux', ''):
     mp = mp.get_context('spawn')
 
 
