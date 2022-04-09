@@ -148,12 +148,12 @@ class _SpiderWrapper:
     def log_level(self, log_level):
         if log_level is None:
             self._log_level = log_level
-        elif (type(log_level) == str
-              and log_level.strip().lower() in self._log_levels):
+        elif (type(log_level) == str and
+              log_level.strip().lower() in self._log_levels):
             self._log_level = self._log_levels[log_level.strip().lower()]
         else:
             raise ValueError(
-                    f'Log level should be in {self._log_levels.keys()}')
+                f'Log level should be in {self._log_levels.keys()}')
 
     @property
     def progress_bar(self):

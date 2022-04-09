@@ -224,10 +224,11 @@ class _OikotieApartmentItem(Item):
             person.
         * contact_person_company (str): Company of the contact person.
         """.strip() + (
-            '\n' +
-            '\n'.join(f'{" " * 8}* {field} (str): {desc}'
-                      for desc, field
-                      in _OikotieApartmentSpider.title2field.items()))
+        '\n' +
+        '\n'.join(f'{" " * 8}* {field} (str): {desc}'
+                  for desc, field
+                  in _OikotieApartmentSpider.title2field.items())
+    )
     url = Field(
         input_processor=Identity(),
         output_processor=TakeFirst()

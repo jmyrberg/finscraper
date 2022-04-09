@@ -15,9 +15,10 @@ def test_spider_save_load_with_jobdir():
     save_jobdir = spider.save()
     loaded_spider = ISArticle.load(save_jobdir)
 
-    assert (jobdir
-            == str(spider.jobdir)
-            == save_jobdir == str(loaded_spider.jobdir))
+    assert (jobdir ==
+            str(spider.jobdir) ==
+            save_jobdir ==
+            str(loaded_spider.jobdir))
 
 
 def test_spider_save_load_without_jobdir():

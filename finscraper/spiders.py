@@ -39,9 +39,9 @@ log_level (str or None, optional): Logging level to display. Should be in
 
 
 def _get_docstring(spider_cls, item_cls):
-    return (spider_cls.__init__.__doc__.strip()
-            + indent(__wrapper_doc__, ' ' * 12)
-            + indent(item_cls.__doc__, ' ' * 4))
+    return (spider_cls.__init__.__doc__.strip() +
+            indent(__wrapper_doc__, ' ' * 12) +
+            indent(item_cls.__doc__, ' ' * 4))
 
 
 class ISArticle(_SpiderWrapper):
