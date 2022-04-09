@@ -22,7 +22,7 @@ jobs:
 
   test:
     name: Test
-    needs: [prep-matrix]
+    needs: [matrix-prep]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
