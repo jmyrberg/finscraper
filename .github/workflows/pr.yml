@@ -17,7 +17,9 @@ jobs:
       run: |
         branchName=${GITHUB_REF#refs/heads/}
         spiderName=${branchName%%/*}
-        allSpiders=$(cat SPIDERS | jq -R -s -c 'split("\n")[:-1]')
+        allSpiders=$(cat SPIDERS | jq -R -s -c 'split("\n")')
+        isSpiderBranch=${{ contains($allSpiders, $spiderName) }}
+        echo $isSpiderBranch
         echo "::set-output name=spiders::$allSpiders"
 
   test:
@@ -40,8 +42,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install flake8 pytest
-        pip install -r requirements.txt
+        pip install -r requirements.txt -r requirements-dev.txt
     - name: Lint with flake8
       run: |
         flake8 .
