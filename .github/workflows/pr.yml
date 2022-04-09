@@ -5,7 +5,8 @@ on:
     branches: [ master ]
 
 jobs:
-  matrix:
+  matrix-prep:
+    name: Prepare matrix for testing
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
@@ -20,6 +21,7 @@ jobs:
         echo "::set-output name=spider::$allSpiders"
 
   test:
+    name: Test
     needs: [prep-matrix]
     runs-on: ubuntu-latest
     strategy:
