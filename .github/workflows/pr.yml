@@ -25,7 +25,7 @@ jobs:
           spiders="[$spiderName, \"not spider\"]"
         else
           echo "Running test for all spiders: $allSpiders"
-          spiders=$(echo $allSpiders | jq '.+ ["not spider"]'
+          spiders=$(echo $allSpiders | jq '.+ ["not spider"]')
         fi
         echo $spiders
         echo "::set-output name=spiders::$allSpiders"
