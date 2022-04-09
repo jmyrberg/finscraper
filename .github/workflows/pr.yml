@@ -5,11 +5,11 @@ on:
     branches: [ master ]
 
 jobs:
-  matrix-prep:
+  scope:
     name: Prepare matrix for testing
     runs-on: ubuntu-latest
     outputs:
-      spiders: ${{ steps.set-matrix.outputs.spiders }}
+      spiders: ${{ steps.scope.outputs.spiders }}
     steps:
     - uses: actions/checkout@v3
     - name: Find test scope
@@ -22,13 +22,12 @@ jobs:
 
   test:
     name: Test
-    needs: [matrix-prep]
+    needs: [scope]
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: true
       matrix:
         python-version: ["3.8"]
-        spider: ${{ fromJson(needs.matrix-prep.outputs.spiders) }}
+        spider: ${{ fromJson(needs.scope.outputs.spiders) }}
     env:
       SPIDER: ${{ matrix.spider }}
 
