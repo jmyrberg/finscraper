@@ -5,7 +5,7 @@ on:
     branches: [ master ]
 
 jobs:
-  prep-matrix:
+  matrix:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
@@ -17,7 +17,7 @@ jobs:
         branchName=${GITHUB_REF#refs/heads/}
         spiderName=${branchName%%/*}
         allSpiders=$(cat SPIDERS | jq -R -s -c 'split("\n")[:-1]')
-        echo $allSpiders
+        echo "::set-output name=spider::$allSpiders"
 
   test:
     needs: [prep-matrix]
@@ -26,7 +26,7 @@ jobs:
       fail-fast: true
       matrix:
         python-version: ["3.8"]
-        spider: ["oikotieapartment", "not spider"]
+        spider: ${{ fromJson(needs.matrix-prep.outputs.spider) }}
     env:
       SPIDER: ${{ matrix.spider }}
 
