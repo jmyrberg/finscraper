@@ -60,4 +60,4 @@ jobs:
         flake8 .
     - name: Test with pytest
       run: |
-        pytest -vv -m "$SPIDER"
+        python -m pytest -vv -m "$SPIDER"
