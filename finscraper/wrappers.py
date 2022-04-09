@@ -57,6 +57,7 @@ def _run_as_process(func, spider_cls, spider_params, settings):
     p.start()
     result = q.get()
     p.join()
+    p.terminate()
 
     if ql:
         ql.stop()
