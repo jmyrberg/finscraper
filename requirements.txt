@@ -1,6 +1,6 @@
 attrs==19.2.0
 pandas==1.0.3
 selenium==3.141.0
-scrapy==2.1.0
+scrapy==2.6.0
 tqdm==4.46.0
 webdriver-manager==2.4.0
