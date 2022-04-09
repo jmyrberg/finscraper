@@ -28,7 +28,7 @@ jobs:
       fail-fast: true
       matrix:
         python-version: ["3.8"]
-        spider: ${{ fromJson(needs.matrix-prep.outputs.spider) }}
+        spider: ${{ fromJson(needs.matrix-prep.outputs.spiders) }}
     env:
       SPIDER: ${{ matrix.spider }}
 
