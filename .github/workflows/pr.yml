@@ -20,7 +20,7 @@ jobs:
         allSpiders=$(cat SPIDERS | jq -R -s -c 'split("\n")')
         isSpiderBranch=$(echo $allSpiders | jq --arg spiderName "$spiderName" 'index("ilarticle")')
         echo "$isSpiderBranch"
-        if [[ "$isSpiderBranch" == "null" ]]; then
+        if [ "$isSpiderBranch" = "null" ]; then
           echo "Running tests only for spider $spiderName"
           spiders="[$spiderName, \"not spider\"]"
         else
