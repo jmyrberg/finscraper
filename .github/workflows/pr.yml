@@ -21,11 +21,11 @@ jobs:
         isSpiderBranch=$(echo $allSpiders | jq --arg spiderName "$spiderName" 'index("ilarticle")')
         echo "$isSpiderBranch"
         if [ "$isSpiderBranch" = "null" ]; then
-          echo "Running tests only for spider $spiderName"
-          spiders="[$spiderName, \"not spider\"]"
-        else
           echo "Running test for all spiders: $allSpiders"
           spiders=$(echo $allSpiders | jq '.+ ["not spider"]')
+        else
+          echo "Running tests only for spider $spiderName"
+          spiders="[$spiderName, \"not spider\"]"
         fi
         echo $spiders
         echo "::set-output name=spiders::$allSpiders"
