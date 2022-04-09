@@ -16,16 +16,17 @@ jobs:
       id: scope
       run: |
         branchName=${GITHUB_REF#refs/heads/}
+        echo ${GITHUB_REF}
         spiderName=${branchName%%/*}
         allSpiders=$(cat SPIDERS | jq -R -s -c 'split("\n")')
-        isSpiderBranch=$(echo $allSpiders | jq --arg spiderName "$spiderName" 'index("ilarticle")')
+        isSpiderBranch=$(echo $allSpiders | jq --arg spiderName "$spiderName" 'index($spiderName)')
         echo "$isSpiderBranch"
         if [ "$isSpiderBranch" = "null" ]; then
-          echo "Running test for all spiders: $allSpiders"
+          echo "Building test matrix for all spiders: $allSpiders"
           spiders=$(echo $allSpiders | jq '.+ ["not spider"]')
         else
-          echo "Running tests only for spider $spiderName"
-          spiders="[$spiderName, \"not spider\"]"
+          echo "Building test matrix only for spider \"$spiderName\""
+          spiders="[\"$spiderName\", \"not spider\"]"
         fi
         echo $spiders
         echo "::set-output name=spiders::$allSpiders"
