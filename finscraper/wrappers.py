@@ -26,8 +26,10 @@ from finscraper.utils import QueueHandler
 
 
 # https://turtlemonvh.github.io/python-multiprocessing-and-corefoundation-libraries.html
-if platform.system() == 'Darwin':
+if platform.python_version() < '3.8' and platform.system() in ('Darwin'):
     mp = mp.get_context('spawn')
+elif platform.python_version() >= '3.8' and platform.system() in ('Linux'):
+    mp = mp.get_context('fork')
 
 
 def _run_as_process(func, spider_cls, spider_params, settings):
