@@ -5,7 +5,6 @@ import json
 import logging
 import multiprocessing as mp
 import pickle
-import platform
 import shutil
 import tempfile
 import uuid
