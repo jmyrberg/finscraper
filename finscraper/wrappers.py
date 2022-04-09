@@ -24,7 +24,7 @@ from twisted.internet import reactor
 from finscraper.utils import QueueHandler
 
 
-mp = mp.get_context('spawn')
+mp = mp.get_context('fork')
 
 
 def _run_as_process(func, spider_cls, spider_params, settings):
