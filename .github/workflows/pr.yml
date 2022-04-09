@@ -19,8 +19,8 @@ jobs:
         spiderName=${branchName%%/*}
         allSpiders=$(cat SPIDERS | jq -R -s -c 'split("\n")')
         echo "$allSpiders"
-        isSpiderBranch=$(jq -r --arg spiderName "$spiderName" '.index($spiderName)' <<< "$allSpiders")
-        echo $isSpiderBranch
+        isSpiderBranch=$(jq --arg spiderName "$spiderName" '.index($spiderName)' "$allSpiders")
+        echo "$isSpiderBranch"
         echo "::set-output name=spiders::$allSpiders"
 
   test:
