@@ -18,10 +18,16 @@ jobs:
         branchName=${GITHUB_REF#refs/heads/}
         spiderName=${branchName%%/*}
         allSpiders=$(cat SPIDERS | jq -R -s -c 'split("\n")')
-        echo "$allSpiders"
-        echo ''
         isSpiderBranch=$(echo $allSpiders | jq --arg spiderName "$spiderName" 'index("ilarticle")')
         echo "$isSpiderBranch"
+        if [[ "$isSpiderBranch" == "null" ]]; then
+          echo "Running tests only for spider $spiderName"
+          spiders="[$spiderName, \"not spider\"]"
+        else
+          echo "Running test for all spiders: $allSpiders"
+          spiders=$(echo $allSpiders | jq '.+ ["not spider"]'
+        fi
+        echo $spiders
         echo "::set-output name=spiders::$allSpiders"
 
   test:
