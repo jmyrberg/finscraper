@@ -19,12 +19,12 @@ setuptools.setup(
     url='https://github.com/jmyrberg/finscraper',
     keywords=['web', 'scraping', 'finnish', 'nlp'],
     install_requires=[
-        'pandas>=1.0.3',
-        'selenium>=3.141.0',
-        'scrapy>=2.1.0',
-        'tqdm>=4.46.0',
-        'webdriver-manager>=2.4.0',
-        'attrs>=19.2.0'
+        'attrs>=21.4.0',
+        'pandas>=1.4.0',
+        'selenium>=4.3.0',
+        'scrapy>=2.6.1',
+        'tqdm>=4.64.0',
+        'webdriver-manager>=2.4.0'
     ],
     packages=setuptools.find_packages(),
     include_package_data=True,

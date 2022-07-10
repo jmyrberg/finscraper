@@ -5,13 +5,14 @@ import io
 import logging
 import pickle
 
-# Monkey patch, see https://github.com/pypa/pipenv/issues/2609
-import webdriver_manager.utils
-def console(text, bold=False):  # NOQA
-    pass
-webdriver_manager.utils.console = console  # NOQA
+# # Monkey patch, see https://github.com/pypa/pipenv/issues/2609
+# import webdriver_manager.utils
+# def console(text, bold=False):  # NOQA
+#     pass
+# webdriver_manager.utils.console = console  # NOQA
 
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 
@@ -97,5 +98,7 @@ def get_chromedriver(options=None):
         options.add_argument("--headless")
         options.add_argument("--disable-extensions")
         options.add_argument("--disable-gpu")
-    driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
+    service = ChromeService(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=options)
+
     return driver

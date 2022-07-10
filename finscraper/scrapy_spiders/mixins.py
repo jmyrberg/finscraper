@@ -64,7 +64,7 @@ class FollowAndParseItemMixin:
         """Parse items and follow links based on defined link extractors."""
         max_itemcount = self.settings.get('CLOSESPIDER_ITEMCOUNT', 0)
         if self.itemcount and self.itemcount == max_itemcount:
-            raise CloseSpider
+            raise CloseSpider('itemcount')
 
         if to_parse:
             yield self._parse_item(resp)

@@ -6,7 +6,7 @@ import time
 import pytest
 
 from finscraper.spiders import ILArticle, ISArticle, YLEArticle, VauvaPage, \
-    OikotieApartment, DemiPage, Suomi24Page, ToriDeal
+    OikotieApartment, Suomi24Page, ToriDeal
 
 from tests.utils import calc_field_emptiness
 
@@ -32,12 +32,6 @@ spiders = [
         'params': [None],
         'n_fields': 8,
         'mark': pytest.mark.ylearticle
-    },
-    {
-        'class': DemiPage,
-        'params': [None],
-        'n_fields': 6,
-        'mark': pytest.mark.demipage
     },
     {
         'class': Suomi24Page,

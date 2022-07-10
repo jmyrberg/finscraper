@@ -9,7 +9,7 @@ from scrapy.exceptions import CloseSpider
 from scrapy.http import HtmlResponse
 from scrapy.linkextractors import LinkExtractor
 from scrapy.loader import ItemLoader
-from scrapy.loader.processors import TakeFirst, Identity, Compose
+from itemloaders.processors import TakeFirst, Identity, Compose
 
 from selenium.common.exceptions import NoSuchElementException
 

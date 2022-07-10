@@ -5,6 +5,7 @@ import json
 import logging
 import multiprocessing as mp
 import pickle
+import platform
 import shutil
 import tempfile
 import uuid
@@ -24,7 +25,8 @@ from twisted.internet import reactor
 from finscraper.utils import QueueHandler
 
 
-mp = mp.get_context('fork')
+if platform.system() == 'Darwin':
+    mp = mp.get_context('spawn')
 
 
 def _run_as_process(func, spider_cls, spider_params, settings):
@@ -196,6 +198,8 @@ class _SpiderWrapper:
         _settings['CLOSESPIDER_TIMEOUT'] = timeout
         _settings['CLOSESPIDER_PAGECOUNT'] = pagecount
         _settings['CLOSESPIDER_ERRORCOUNT'] = errorcount
+
+        _settings['DOWNLOAD_TIMEOUT'] = timeout
 
         _settings['LOG_STDOUT'] = True
         _settings['LOG_LEVEL'] = self.log_level or logging.NOTSET
