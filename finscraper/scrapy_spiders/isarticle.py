@@ -26,7 +26,7 @@ class _ISArticleSpider(FollowAndParseItemMixin, Spider):
     )
     item_link_extractor = LinkExtractor(
         allow_domains=('is.fi'),
-        allow=(rf'.*/art\-[0-9]+\.html'),
+        allow=(r'.*/art\-[0-9]+\.html'),
         deny=(r'.*/tag/.*', r'.*/haku/.*', r'.*/reseptit/.*', r'.*/mainos/.*',
               r'.*/yritys/.*'),
         deny_domains=('ravit.is.fi'),

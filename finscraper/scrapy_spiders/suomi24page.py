@@ -27,7 +27,7 @@ class _Suomi24PageSpider(FollowAndParseItemMixin, Spider):
     )
     item_link_extractor = LinkExtractor(
         allow_domains=('keskustelu.suomi24.fi'),
-        allow=(rf'/t/[0-9]+/[A-z0-9\-]+'),
+        allow=(r'/t/[0-9]+/[A-z0-9\-]+'),
         deny=(r'\?'),
         deny_domains=(),
         canonicalize=True

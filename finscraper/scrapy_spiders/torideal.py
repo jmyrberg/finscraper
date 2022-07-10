@@ -27,7 +27,7 @@ class _ToriDealSpider(FollowAndParseItemMixin, Spider):
     )
     item_link_extractor = LinkExtractor(
         allow_domains=('tori.fi'),
-        allow=(rf'/[A-z0-9\_]+.htm.*'),
+        allow=(r'/[A-z0-9\_]+.htm.*'),
         deny=('.*tili.*'),
         deny_domains=('tuki.tori.fi', 'blog.tori.fi', 'tori-kaupat.tori.fi',
                       'careers.tori.fi', 'media.tori.fi', 'asunnot.tori.fi'),

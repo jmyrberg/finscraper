@@ -27,7 +27,7 @@ class _VauvaPageSpider(FollowAndParseItemMixin, Spider):
     )
     item_link_extractor = LinkExtractor(
         allow_domains=('vauva.fi'),
-        allow=(rf'keskustelu/[0-9]+/[A-z0-9\-]+'),
+        allow=(r'keskustelu/[0-9]+/[A-z0-9\-]+'),
         deny=('quote', 'changed', 'user', r'(\&|\?)(rate)\='),
         deny_domains=(),
         canonicalize=True

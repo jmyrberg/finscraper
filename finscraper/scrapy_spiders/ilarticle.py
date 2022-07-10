@@ -25,7 +25,7 @@ class _ILArticleSpider(FollowAndParseItemMixin, Spider):
     )
     item_link_extractor = LinkExtractor(
         allow_domains=('iltalehti.fi'),
-        allow=(rf'.*/a/[0-9A-z\-]+'),
+        allow=(r'.*/a/[0-9A-z\-]+'),
         deny=(r'.*/telkku/.*'),
         deny_domains=(),
         canonicalize=True

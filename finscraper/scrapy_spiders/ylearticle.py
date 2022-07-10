@@ -27,8 +27,8 @@ class _YLEArticleSpider(FollowAndParseItemMixin, Spider):
     )
     item_link_extractor = LinkExtractor(
         allow_domains=('yle.fi'),
-        allow=(rf'(uutiset|urheilu)/[0-9]+\-[0-9]+'),
-        deny=(rf'(uutiset|urheilu)/18-'),
+        allow=(r'(uutiset|urheilu)/[0-9]+\-[0-9]+'),
+        deny=(r'(uutiset|urheilu)/18-'),
         deny_domains=(),
         canonicalize=True
     )

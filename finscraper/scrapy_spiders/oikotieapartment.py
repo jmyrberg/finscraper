@@ -30,7 +30,7 @@ class _OikotieApartmentSpider(Spider):
     )
     item_link_extractor = LinkExtractor(
         allow_domains=('asunnot.oikotie.fi'),
-        allow=(rf'.*/myytavat-asunnot/.*/[0-9]+'),
+        allow=(r'.*/myytavat-asunnot/.*/[0-9]+'),
         deny=(r'.*?origin\=.*'),
         deny_domains=(),
         canonicalize=True

@@ -19,6 +19,7 @@ def monkeypatch(cls):
                 **kwargs: f(old_method, self, *args, **kwargs))
     return decorator
 
+
 # workaround until https://github.com/miyakogi/m2r/pull/55 is merged
 @monkeypatch(sphinx.registry.SphinxComponentRegistry)
 def add_source_parser(_old_add_source_parser, self, *args, **kwargs):
