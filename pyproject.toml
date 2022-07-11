@@ -48,3 +48,4 @@ where = [
 
 [tool.setuptools_scm]
 write_to = "finscraper/_version.py"
+local_scheme = "no-local-version"
