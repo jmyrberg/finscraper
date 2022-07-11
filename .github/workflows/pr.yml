@@ -17,13 +17,11 @@ jobs:
       - name: Find test scope
         id: scope
         run: |
+          echo "Git branch ${GITHUB_HEAD_REF}"
           branchName=${GITHUB_HEAD_REF#refs/heads/}
           spiderName=${branchName%%/*}
           allSpiders=$(cat SPIDERS | jq -R -s -c 'split("\n")')
           isSpiderBranch=$(echo $allSpiders | jq --arg spiderName "$spiderName" 'index($spiderName)')
-          echo "Branch name: $spiderName"
-          echo "Branch name: $branchName"
-          echo "Git branch ${GITHUB_HEAD_REF}"
           if [ "$isSpiderBranch" = "null" ]; then
             echo "Building test matrix for all spiders: $allSpiders"
             spiders=$(echo $allSpiders | jq '.+ ["not spider"]')
@@ -32,7 +30,7 @@ jobs:
             spiders="[\"$spiderName\", \"not spider\"]"
           fi
           echo "Spider matrix: $spiders"
-          echo "::set-output name=spiders::$allSpiders"
+          echo "::set-output name=spiders::$spiders"
 
   test:
     name: Test
