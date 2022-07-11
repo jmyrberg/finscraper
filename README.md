@@ -11,7 +11,6 @@ The library provides an easy-to-use API for fetching data from various Finnish w
 | [Ilta-Sanomat](https://www.is.fi)                              | News article      | `ISArticle`        |
 | [Iltalehti](https://www.il.fi)                                 | News article      | `ILArticle`        |
 | [YLE Uutiset](https://www.yle.fi/uutiset)                      | News article      | `YLEArticle`       |
-| [Demi](https://demi.fi)                                        | Discussion thread | `DemiPage`         |
 | [Suomi24](https://keskustelu.suomi24.fi)                       | Discussion thread | `Suomi24Page`      |
 | [Vauva](https://www.vauva.fi)                                  | Discussion thread | `VauvaPage`        |
 | [Oikotie Asunnot](https://asunnot.oikotie.fi/myytavat-asunnot) | Apartment ad      | `OikotieApartment` |

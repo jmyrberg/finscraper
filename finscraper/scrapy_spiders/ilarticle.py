@@ -7,7 +7,7 @@ from scrapy import Item, Field, Selector
 from scrapy.crawler import Spider
 from scrapy.linkextractors import LinkExtractor
 from scrapy.loader import ItemLoader
-from scrapy.loader.processors import TakeFirst, Identity, MapCompose
+from itemloaders.processors import TakeFirst, Identity, MapCompose
 
 from finscraper.scrapy_spiders.mixins import FollowAndParseItemMixin
 from finscraper.text_utils import strip_join, paragraph_join
@@ -25,7 +25,7 @@ class _ILArticleSpider(FollowAndParseItemMixin, Spider):
     )
     item_link_extractor = LinkExtractor(
         allow_domains=('iltalehti.fi'),
-        allow=(rf'.*/a/[0-9A-z\-]+'),
+        allow=(r'.*/a/[0-9A-z\-]+'),
         deny=(r'.*/telkku/.*'),
         deny_domains=(),
         canonicalize=True

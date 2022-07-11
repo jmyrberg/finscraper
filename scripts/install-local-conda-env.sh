@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ENV_NAME=finscraper
-PYTHON_VERSION=3.8
+PYTHON_VERSION=3.10
 
 conda create -y -n $ENV_NAME python=$PYTHON_VERSION &&
 conda activate $ENV_NAME &&

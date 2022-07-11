@@ -25,7 +25,6 @@ from twisted.internet import reactor
 from finscraper.utils import QueueHandler
 
 
-# https://turtlemonvh.github.io/python-multiprocessing-and-corefoundation-libraries.html
 if platform.system() == 'Darwin':
     mp = mp.get_context('spawn')
 
@@ -60,6 +59,7 @@ def _run_as_process(func, spider_cls, spider_params, settings):
     p.start()
     result = q.get()
     p.join()
+    p.terminate()
 
     if ql:
         ql.stop()
@@ -148,12 +148,12 @@ class _SpiderWrapper:
     def log_level(self, log_level):
         if log_level is None:
             self._log_level = log_level
-        elif (type(log_level) == str
-              and log_level.strip().lower() in self._log_levels):
+        elif (type(log_level) == str and
+              log_level.strip().lower() in self._log_levels):
             self._log_level = self._log_levels[log_level.strip().lower()]
         else:
             raise ValueError(
-                    f'Log level should be in {self._log_levels.keys()}')
+                f'Log level should be in {self._log_levels.keys()}')
 
     @property
     def progress_bar(self):
@@ -198,6 +198,8 @@ class _SpiderWrapper:
         _settings['CLOSESPIDER_TIMEOUT'] = timeout
         _settings['CLOSESPIDER_PAGECOUNT'] = pagecount
         _settings['CLOSESPIDER_ERRORCOUNT'] = errorcount
+
+        _settings['DOWNLOAD_TIMEOUT'] = timeout
 
         _settings['LOG_STDOUT'] = True
         _settings['LOG_LEVEL'] = self.log_level or logging.NOTSET

@@ -5,8 +5,10 @@ import numpy as np
 import pandas as pd
 
 
-def is_empty(value, empty_values = ('', [], None, np.nan)):
+def is_empty(value, empty_values=None):
     """Whether an object is empty or not from scraping point of view."""
+    if empty_values is None:
+        empty_values = ('', [], None, np.nan)
     if type(value) == str:
         value = value.strip()
     if type(value) == list:
@@ -23,8 +25,10 @@ def is_empty(value, empty_values = ('', [], None, np.nan)):
         return value in empty_values
 
 
-def calc_field_emptiness(df, empty_values=('', [], None, np.nan)):
+def calc_field_emptiness(df, empty_values=None):
     """Calculate emptiness of DataFrame columns."""
+    if empty_values is None:
+        empty_values = ('', [], None, np.nan)
     stats = []
     for col in df:
         empty = df[col].apply(is_empty, empty_values=empty_values)

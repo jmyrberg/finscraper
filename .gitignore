@@ -11,6 +11,7 @@ results/*
 .DS_Store
 notebooks/*
 docs/source/_build/*
+finscraper/_version.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

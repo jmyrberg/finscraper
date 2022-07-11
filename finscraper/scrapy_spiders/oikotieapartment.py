@@ -9,7 +9,7 @@ from scrapy.exceptions import CloseSpider
 from scrapy.http import HtmlResponse
 from scrapy.linkextractors import LinkExtractor
 from scrapy.loader import ItemLoader
-from scrapy.loader.processors import TakeFirst, Identity, Compose
+from itemloaders.processors import TakeFirst, Identity, Compose
 
 from selenium.common.exceptions import NoSuchElementException
 
@@ -30,7 +30,7 @@ class _OikotieApartmentSpider(Spider):
     )
     item_link_extractor = LinkExtractor(
         allow_domains=('asunnot.oikotie.fi'),
-        allow=(rf'.*/myytavat-asunnot/.*/[0-9]+'),
+        allow=(r'.*/myytavat-asunnot/.*/[0-9]+'),
         deny=(r'.*?origin\=.*'),
         deny_domains=(),
         canonicalize=True
@@ -224,10 +224,11 @@ class _OikotieApartmentItem(Item):
             person.
         * contact_person_company (str): Company of the contact person.
         """.strip() + (
-            '\n' +
-            '\n'.join(f'{" " * 8}* {field} (str): {desc}'
-                      for desc, field
-                      in _OikotieApartmentSpider.title2field.items()))
+        '\n' +
+        '\n'.join(f'{" " * 8}* {field} (str): {desc}'
+                  for desc, field
+                  in _OikotieApartmentSpider.title2field.items())
+    )
     url = Field(
         input_processor=Identity(),
         output_processor=TakeFirst()

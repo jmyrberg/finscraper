@@ -9,7 +9,7 @@ from scrapy import Item, Field, Selector
 from scrapy.crawler import Spider
 from scrapy.linkextractors import LinkExtractor
 from scrapy.loader import ItemLoader
-from scrapy.loader.processors import TakeFirst, Identity, MapCompose
+from itemloaders.processors import TakeFirst, Identity, MapCompose
 
 from finscraper.scrapy_spiders.mixins import FollowAndParseItemMixin
 from finscraper.text_utils import strip_join, paragraph_join
@@ -27,8 +27,8 @@ class _YLEArticleSpider(FollowAndParseItemMixin, Spider):
     )
     item_link_extractor = LinkExtractor(
         allow_domains=('yle.fi'),
-        allow=(rf'(uutiset|urheilu)/[0-9]+\-[0-9]+'),
-        deny=(rf'(uutiset|urheilu)/18-'),
+        allow=(r'(uutiset|urheilu)/[0-9]+\-[0-9]+'),
+        deny=(r'(uutiset|urheilu)/18-'),
         deny_domains=(),
         canonicalize=True
     )

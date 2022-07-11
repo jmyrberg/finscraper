@@ -8,7 +8,7 @@ from scrapy import Item, Field, Selector
 from scrapy.crawler import Spider
 from scrapy.linkextractors import LinkExtractor
 from scrapy.loader import ItemLoader
-from scrapy.loader.processors import TakeFirst, Identity, MapCompose, Compose
+from itemloaders.processors import TakeFirst, Identity, MapCompose, Compose
 
 from finscraper.scrapy_spiders.mixins import FollowAndParseItemMixin
 from finscraper.text_utils import strip_join, safe_cast_int, strip_elements, \
@@ -27,7 +27,7 @@ class _VauvaPageSpider(FollowAndParseItemMixin, Spider):
     )
     item_link_extractor = LinkExtractor(
         allow_domains=('vauva.fi'),
-        allow=(rf'keskustelu/[0-9]+/[A-z0-9\-]+'),
+        allow=(r'keskustelu/[0-9]+/[A-z0-9\-]+'),
         deny=('quote', 'changed', 'user', r'(\&|\?)(rate)\='),
         deny_domains=(),
         canonicalize=True

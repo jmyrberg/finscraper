@@ -6,7 +6,7 @@ import time
 import pytest
 
 from finscraper.spiders import ILArticle, ISArticle, YLEArticle, VauvaPage, \
-    OikotieApartment, DemiPage, Suomi24Page, ToriDeal
+    OikotieApartment, Suomi24Page, ToriDeal
 
 from tests.utils import calc_field_emptiness
 
@@ -14,6 +14,7 @@ from tests.utils import calc_field_emptiness
 pytestmark = [pytest.mark.spider]
 
 # Spiders can be added here, and basic tests will be set up automatically
+# TODO: Set up emptiness pct per field + benchmarks non-xfail/xpass
 spiders = [
     {
         'class': ILArticle,
@@ -32,12 +33,6 @@ spiders = [
         'params': [None],
         'n_fields': 8,
         'mark': pytest.mark.ylearticle
-    },
-    {
-        'class': DemiPage,
-        'params': [None],
-        'n_fields': 6,
-        'mark': pytest.mark.demipage
     },
     {
         'class': Suomi24Page,

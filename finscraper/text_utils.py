@@ -22,8 +22,7 @@ def strip_elements(text_list):
 
 def drop_empty_elements(text_list):
     return [text for text in text_list
-            if text is not None
-            and (type(text) == str and text.strip() != '')]
+            if text is not None and (type(text) == str and text.strip() != '')]
 
 
 def safe_cast_int(text):

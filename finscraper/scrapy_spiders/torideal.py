@@ -7,8 +7,7 @@ from scrapy import Item, Field, Selector
 from scrapy.crawler import Spider
 from scrapy.linkextractors import LinkExtractor
 from scrapy.loader import ItemLoader
-from scrapy.loader.processors import TakeFirst, Identity, MapCompose, \
-    Compose
+from itemloaders.processors import TakeFirst, Identity, MapCompose, Compose
 
 from finscraper.scrapy_spiders.mixins import FollowAndParseItemMixin
 from finscraper.text_utils import strip_join, drop_empty_elements, \
@@ -28,7 +27,7 @@ class _ToriDealSpider(FollowAndParseItemMixin, Spider):
     )
     item_link_extractor = LinkExtractor(
         allow_domains=('tori.fi'),
-        allow=(rf'/[A-z0-9\_]+.htm.*'),
+        allow=(r'/[A-z0-9\_]+.htm.*'),
         deny=('.*tili.*'),
         deny_domains=('tuki.tori.fi', 'blog.tori.fi', 'tori-kaupat.tori.fi',
                       'careers.tori.fi', 'media.tori.fi', 'asunnot.tori.fi'),
