@@ -1,7 +1,5 @@
 # finscraper
 
-[![Build Status](https://travis-ci.com/jmyrberg/finscraper.svg?branch=master)](https://travis-ci.com/jmyrberg/finscraper) [![Documentation Status](https://readthedocs.org/projects/finscraper/badge/?version=latest)](https://finscraper.readthedocs.io/en/latest/?badge=latest)
-
 ![finscraper cover](https://github.com/jmyrberg/finscraper/blob/master/docs/cover.jpg?raw=true)
 
 The library provides an easy-to-use API for fetching data from various Finnish websites:
