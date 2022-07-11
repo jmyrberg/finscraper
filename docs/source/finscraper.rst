@@ -84,7 +84,6 @@ finscraper.wrappers module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 

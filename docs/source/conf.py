@@ -6,29 +6,6 @@
 
 
 # -- Init --------------------------------------------------------------------
-# See https://github.com/miyakogi/m2r/issues/51
-import sphinx
-
-
-def monkeypatch(cls):
-    """ decorator to monkey-patch methods """
-    def decorator(f):
-        method = f.__name__
-        old_method = getattr(cls, method)
-        setattr(cls, method, lambda self, *args,
-                **kwargs: f(old_method, self, *args, **kwargs))
-    return decorator
-
-
-# workaround until https://github.com/miyakogi/m2r/pull/55 is merged
-@monkeypatch(sphinx.registry.SphinxComponentRegistry)
-def add_source_parser(_old_add_source_parser, self, *args, **kwargs):
-    # signature is (parser: Type[Parser], **kwargs), but m2r expects
-    # the removed (str, parser: Type[Parser], **kwargs).
-    if isinstance(args[0], str):
-        args = args[1:]
-    return _old_add_source_parser(self, *args, **kwargs)
-
 
 # -- Path setup --------------------------------------------------------------
 
@@ -44,13 +21,12 @@ sys.path.insert(0, os.path.abspath('../../'))
 # -- Project information -----------------------------------------------------
 
 project = 'finscraper'
-copyright = '2020, Jesse Myrberg'
+copyright = '2022, Jesse Myrberg'
 author = 'Jesse Myrberg'
 
 # The full version, including alpha/beta/rc tags
-with open('../../VERSION', 'r') as f:
-    release = f.read().strip()
-
+from setuptools_scm import get_version
+release = get_version('../../')
 
 # -- General configuration ---------------------------------------------------
 
@@ -58,7 +34,7 @@ with open('../../VERSION', 'r') as f:
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'm2r',
+    'm2r2',
     'sphinxcontrib.napoleon',
     'sphinx.ext.autodoc',
     'sphinx_rtd_theme',

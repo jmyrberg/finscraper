@@ -7,7 +7,7 @@ repository up-to-date all by myself, so pull requests are more than welcome!
 
 1. Create a branch for the spider, e.g. ``mtvarticle``
 
-2. Add the spider name in [pytest.ini](https://github.com/jmyrberg/finscraper/blob/master/pytest.ini) and [.travis.yml](https://github.com/jmyrberg/finscraper/blob/master/.travis.yml)
+2. Add the spider name in [pytest.ini](https://github.com/jmyrberg/finscraper/blob/master/pytest.ini) and [SPIDERS](https://github.com/jmyrberg/finscraper/blob/master/SPIDERS) -file
 
 3. Add the spider in [tests/test_spiders.py](https://github.com/jmyrberg/finscraper/blob/master/tests/test_spiders.py) similar to others
 
@@ -19,7 +19,7 @@ repository up-to-date all by myself, so pull requests are more than welcome!
 
 7. Push your branch into Github and make a pull request against master
 
-8. *(OPTIONAL)*: Bump up the version in [VERSION](https://github.com/jmyrberg/finscraper/blob/master/VERSION) and [re-build the documentation](https://github.com/jmyrberg/finscraper/blob/master/scripts/build-documentation.sh)
+8. Repository admin will merge to master and create a release after a review
 
 
 ## Updating an existing spider

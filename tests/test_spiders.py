@@ -14,6 +14,7 @@ from tests.utils import calc_field_emptiness
 pytestmark = [pytest.mark.spider]
 
 # Spiders can be added here, and basic tests will be set up automatically
+# TODO: Set up emptiness pct per field + benchmarks non-xfail/xpass
 spiders = [
     {
         'class': ILArticle,
