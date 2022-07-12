@@ -146,7 +146,9 @@ class _OikotieApartmentSpider(Spider):
     @staticmethod
     def _handle_start(request, spider, driver):
         driver.get(request.url)
-        print(driver.page_source)
+        logger.error('PAGE SOURCE:\n')
+        logger.error(driver.page_source)
+        logger.error('\n' * 10)
 
         # Find iframe
         # logger.info('Waiting for iframe...')
