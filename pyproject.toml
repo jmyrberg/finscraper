@@ -42,8 +42,8 @@ requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-where = [
-    "finscraper"
+include = [
+    "finscraper*"
 ]
 
 [tool.setuptools_scm]
