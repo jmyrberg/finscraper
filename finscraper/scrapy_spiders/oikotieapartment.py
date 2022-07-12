@@ -44,8 +44,8 @@ class _OikotieApartmentSpider(Spider):
     )
     custom_settings = {
         # The following needs to be set
-        'DISABLE_HEADLESS': True,
-        'MINIMIZE_WINDOW': True,
+        'DISABLE_HEADLESS': False,
+        'MINIMIZE_WINDOW': False,
         'ROBOTSTXT_OBEY': False,
         'DOWNLOADER_MIDDLEWARES': {
             'finscraper.middlewares.SeleniumCallbackMiddleware': 800
