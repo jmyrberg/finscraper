@@ -1,8 +1,6 @@
 """Module for Scrapy middlewares."""
 
 
-import logging
-
 from scrapy import signals
 from scrapy.exceptions import NotConfigured
 from scrapy.http import HtmlResponse

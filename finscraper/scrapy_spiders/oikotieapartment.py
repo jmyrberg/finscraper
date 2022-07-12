@@ -15,7 +15,6 @@ from itemloaders.processors import TakeFirst, Identity, Compose
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
-from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
 from finscraper.request import SeleniumCallbackRequest
 from finscraper.text_utils import strip_join, drop_empty_elements, \
