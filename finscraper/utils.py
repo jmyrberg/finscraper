@@ -93,6 +93,9 @@ def get_chromedriver(options=None):
         options.add_argument("--disable-extensions")
         options.add_argument("--disable-gpu")
         options.add_argument('--disable-dev-shm-usage')
+        options.add_argument("--headless")
+        options.add_experimental_option(
+            'prefs', {'intl.accept_languages': 'fi,fi_FI'})
     service = ChromeService(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
 
