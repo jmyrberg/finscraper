@@ -6,6 +6,7 @@ from scrapy.exceptions import NotConfigured
 from scrapy.http import HtmlResponse
 
 from selenium.webdriver.chrome.options import Options
+from selenium.common.exceptions import WebDriverException
 
 from finscraper.request import SeleniumCallbackRequest
 from finscraper.utils import get_chromedriver
@@ -44,7 +45,10 @@ class SeleniumCallbackMiddleware:
         try:
             self.driver = get_chromedriver(options)
             if self.settings.get('MINIMIZE_WINDOW', False):
-                self.driver.minimize_window()
+                try:
+                    self.driver.minimize_window()
+                except WebDriverException:
+                    pass
         except Exception:
             raise NotConfigured('Could not get chromedriver')
 
