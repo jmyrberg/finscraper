@@ -33,10 +33,12 @@ class SeleniumCallbackMiddleware:
 
     def spider_opened(self, spider):
         options = Options()
-        if not self.settings.get('DISABLE_HEADLESS', False):
-            options.add_argument("--headless")
         options.add_argument("--disable-extensions")
         options.add_argument("--disable-gpu")
+        options.add_argument('--disable-dev-shm-usage')
+        options.add_argument('--no-sandbox')
+        if not self.settings.get('DISABLE_HEADLESS', False):
+            options.add_argument("--headless")
         if self.settings.get('PROGRESS_BAR_ENABLED', True):
             options.add_argument('--disable-logging')
         try:

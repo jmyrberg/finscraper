@@ -89,9 +89,10 @@ class QueueHandler(logging.Handler):
 def get_chromedriver(options=None):
     if not options:
         options = Options()
-        options.add_argument("--headless")
         options.add_argument("--disable-extensions")
         options.add_argument("--disable-gpu")
+        options.add_argument('--disable-dev-shm-usage')
+        options.add_argument('--no-sandbox')
     service = ChromeService(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
 
