@@ -12,6 +12,7 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.loader import ItemLoader
 from itemloaders.processors import TakeFirst, Identity, Compose
 
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
@@ -146,35 +147,35 @@ class _OikotieApartmentSpider(Spider):
     @staticmethod
     def _handle_start(request, spider, driver):
         driver.get(request.url)
-        logger.error('PAGE SOURCE:\n')
-        logger.error(driver.page_source)
-        logger.error('\n' * 10)
 
-        # Find iframe
-        # logger.info('Waiting for iframe...')
-        iframe_xpath = "//iframe[contains(@id, 'sp_message_iframe')]"
-        iframe = WebDriverWait(driver, 5).until(
-            EC.presence_of_element_located((By.XPATH, iframe_xpath)))
-        driver.switch_to.frame(iframe)
-        # logger.info(f'Switched to iframe {iframe}')
+        try:
+            # Find iframe
+            logger.info('Waiting for iframe...')
+            iframe_xpath = "//iframe[contains(@id, 'sp_message_iframe')]"
+            iframe = WebDriverWait(driver, 5).until(
+                EC.presence_of_element_located((By.XPATH, iframe_xpath)))
+            driver.switch_to.frame(iframe)
+            logger.info(f'Switched to iframe {iframe}')
 
-        # Find button
-        # logger.info('Finding button...')
-        button_xpath = "//button[contains(., 'Hyväksy')]"
-        WebDriverWait(driver, 5).until(
-            EC.presence_of_element_located((By.XPATH, button_xpath)))
-        modal = driver.find_element(By.XPATH, button_xpath)
-        # logger.info('Clicking modal...')
-        modal.click()
-        # logger.info('Waiting 1 second...')
-        driver.implicitly_wait(1)
-        # logger.info('Waiting for modal to disappear...')
-        WebDriverWait(driver, 10).until(
-            EC.invisibility_of_element_located((By.XPATH, button_xpath)))
+            # Find button
+            logger.info('Finding button...')
+            button_xpath = "//button[contains(., 'Hyväksy')]"
+            WebDriverWait(driver, 5).until(
+                EC.presence_of_element_located((By.XPATH, button_xpath)))
+            modal = driver.find_element(By.XPATH, button_xpath)
+            logger.info('Clicking modal...')
+            modal.click()
+            logger.info('Waiting 1 second...')
+            driver.implicitly_wait(1)
+            logger.info('Waiting for modal to disappear...')
+            WebDriverWait(driver, 10).until(
+                EC.invisibility_of_element_located((By.XPATH, button_xpath)))
 
-        # logger.info('Switching to default frame')
-        driver.switch_to.default_content()
-        # logger.info('Modal handled successfully!')
+            logger.info('Switching to default frame')
+            driver.switch_to.default_content()
+            logger.info('Modal handled successfully!')
+        except TimeoutException:
+            logger.warning('No modal found, assuming does not exist')
 
         return HtmlResponse(
             driver.current_url,
