@@ -23,7 +23,7 @@ jobs:
           isSpiderBranch=$(echo $allSpiders | jq --arg spiderName "$spiderName" 'index($spiderName)')
           if [ "$isSpiderBranch" = "null" ]; then
             echo "Building test matrix for all spiders: $allSpiders"
-            spiders=$(echo $allSpiders | jq '.+ ["not spider"]')
+            spiders=$(echo "$allSpiders" | jq '.+ ["not spider"]')
           else
             echo "Building test matrix only for spider \"$spiderName\""
             spiders="[\"$spiderName\", \"not spider\"]"
