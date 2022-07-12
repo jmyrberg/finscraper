@@ -70,7 +70,10 @@ jobs:
           pip install -r requirements.txt -r requirements-dev.txt
       - name: Install chrome, if necessary
         if: contains(fromJson('["oikotieapartment"]'), matrix.spider)
-        uses: browser-actions/setup-chrome@latest
+        run: |
+          Xvfb :99 &
       - name: Test with pytest
+        env:
+          DISPLAY: :99
         run: |
           python -m pytest -vv -m "$SPIDER"
