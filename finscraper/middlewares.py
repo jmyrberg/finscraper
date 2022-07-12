@@ -17,6 +17,8 @@ class SeleniumCallbackMiddleware:
     """Middleware that processes request with given callback.
 
     Headless mode can be disabled via ``DISABLE_HEADLESS`` Scrapy setting.
+    In non-headless mode, window can be minimized via ``MINIMIZE_WINDOW``
+    Scrapy setting.
     """
 
     def __init__(self, settings):
@@ -39,11 +41,10 @@ class SeleniumCallbackMiddleware:
         options.add_argument("--disable-gpu")
         if self.settings.get('PROGRESS_BAR_ENABLED', True):
             options.add_argument('--disable-logging')
-            for name in ['selenium.webdriver.remote.remote_connection',
-                         'requests', 'urllib3']:
-                logging.getLogger(name).propagate = False
         try:
             self.driver = get_chromedriver(options)
+            if self.settings.get('MINIMIZE_WINDOW', False):
+                self.driver.minimize_window()
         except Exception:
             raise NotConfigured('Could not get chromedriver')
 

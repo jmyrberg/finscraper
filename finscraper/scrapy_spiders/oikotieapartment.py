@@ -1,6 +1,7 @@
 """Module for OikotieApartment spider."""
 
 
+import logging
 import time
 
 from scrapy import Item, Field, Request
@@ -11,17 +12,24 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.loader import ItemLoader
 from itemloaders.processors import TakeFirst, Identity, Compose
 
-from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
 from finscraper.request import SeleniumCallbackRequest
 from finscraper.text_utils import strip_join, drop_empty_elements, \
     paragraph_join
 
 
+logger = logging.getLogger(__name__)
+
+
 class _OikotieApartmentSpider(Spider):
     name = 'oikotieapartment'
     start_urls = ['https://asunnot.oikotie.fi/myytavat-asunnot']
     follow_link_extractor = LinkExtractor(
+        attrs=('href', 'ng-href'),
         allow_domains=('asunnot.oikotie.fi'),
         allow=(r'.*\/myytavat-asunnot\/.*'),
         deny=(r'.*?origin\=.*'),
@@ -36,7 +44,10 @@ class _OikotieApartmentSpider(Spider):
         canonicalize=True
     )
     custom_settings = {
-        'ROBOTSTXT_OBEY': False,  # No robots.txt, will fail with yes
+        # The following needs to be set
+        'DISABLE_HEADLESS': True,
+        'MINIMIZE_WINDOW': True,
+        'ROBOTSTXT_OBEY': False,
         'DOWNLOADER_MIDDLEWARES': {
             'finscraper.middlewares.SeleniumCallbackMiddleware': 800
         }
@@ -136,12 +147,33 @@ class _OikotieApartmentSpider(Spider):
     @staticmethod
     def _handle_start(request, spider, driver):
         driver.get(request.url)
-        try:  # Accept cookies modal
-            modal = driver.find_element_by_xpath(
-                '//div[contains(@class, "sccm-button-green")]')
-            modal.click()
-        except NoSuchElementException:
-            pass
+
+        # Find iframe
+        # logger.info('Waiting for iframe...')
+        iframe_xpath = "//iframe[contains(@id, 'sp_message_iframe')]"
+        iframe = WebDriverWait(driver, 5).until(
+            EC.presence_of_element_located((By.XPATH, iframe_xpath)))
+        driver.switch_to.frame(iframe)
+        # logger.info(f'Switched to iframe {iframe}')
+
+        # Find button
+        # logger.info('Finding button...')
+        button_xpath = "//button[contains(., 'Hyväksy')]"
+        WebDriverWait(driver, 5).until(
+            EC.presence_of_element_located((By.XPATH, button_xpath)))
+        modal = driver.find_element(By.XPATH, button_xpath)
+        # logger.info('Clicking modal...')
+        modal.click()
+        # logger.info('Waiting 1 second...')
+        driver.implicitly_wait(1)
+        # logger.info('Waiting for modal to disappear...')
+        WebDriverWait(driver, 10).until(
+            EC.invisibility_of_element_located((By.XPATH, button_xpath)))
+
+        # logger.info('Switching to default frame')
+        driver.switch_to.default_content()
+        # logger.info('Modal handled successfully!')
+
         return HtmlResponse(
             driver.current_url,
             body=driver.page_source.encode('utf-8'),

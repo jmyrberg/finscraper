@@ -1,4 +1,4 @@
-name: Draft release
+name: Draft release and upload distribution to Test PyPi
 
 on:
   push:
@@ -9,6 +9,7 @@ permissions:
 
 jobs:
   draft-release:
+    name: Draft release and upload distribution to Test PyPi
     runs-on: ubuntu-latest
     permissions:
       contents: write

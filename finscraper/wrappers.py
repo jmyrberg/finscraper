@@ -34,62 +34,96 @@ def _run_as_process(func, spider_cls, spider_params, settings):
     # (queuehandler --> listener --> root logger --> streamhandler)
     progress_bar_enabled = settings['PROGRESS_BAR_ENABLED']
     log_enabled = settings['LOG_ENABLED']
-    q_log = None
-    ql = None
+    logger = None
+    log_queue = None
+    log_queue_listener = None
     if log_enabled or progress_bar_enabled:
-        handler = logging.StreamHandler()
+        stream_handler = logging.StreamHandler()
         if progress_bar_enabled:
-            handler.terminator = ''
-            handler.setFormatter(logging.Formatter('%(message)s'))
+            stream_handler.terminator = ''
+            stream_handler.setFormatter(logging.Formatter('%(message)s'))
         else:
-            handler.setFormatter(logging.Formatter(settings.get('LOG_FORMAT')))
+            stream_handler.setFormatter(
+                logging.Formatter(settings.get('LOG_FORMAT')))
 
-        q_log = mp.Queue(-1)
-        ql = QueueListener(q_log, handler)
-        ql.start()
+        # Contains log messages or progress bar status
+        log_queue = mp.Queue(-1)
 
+        # Forward log messages / progress bar from queue into stream handler
+        log_queue_listener = QueueListener(log_queue, stream_handler)
+        log_queue_listener.start()
+
+        # Add stream handler to root logger to display real-time results
         logger = logging.getLogger()
         logger.setLevel(settings.get('LOG_LEVEL'))
-        logger.addHandler(handler)
+        logger.addHandler(stream_handler)
 
     # Start function as a separate process
-    q = mp.Queue()
-    p = mp.Process(target=func,
-                   args=(q, q_log, spider_cls, spider_params, settings))
-    p.start()
-    result = q.get()
-    p.join()
-    p.terminate()
+    results_queue = mp.Queue()
+    args = (results_queue, log_queue, spider_cls, spider_params, settings)
+    process = mp.Process(target=func, args=args)
+    process.start()
+    result = results_queue.get()
+    process.join()
+    process.terminate()
 
-    if ql:
-        ql.stop()
+    if log_queue_listener is not None:
+        log_queue_listener.stop()
+
+    if logger is not None:
+        logger.removeHandler(stream_handler)
 
     if isinstance(result, BaseException):
         raise result
 
 
-def _run_spider_func(q, q_log, spider_cls, spider_params, settings):
+def _run_spider_func(results_queue, log_queue, spider_cls, spider_params,
+                     settings):
     try:
+        # Setup Scrapy logging
         configure_logging(settings, install_root_handler=False)
-        if q_log is not None:
-            # Setup logging (worker --> queuehandler --> root logger)
-            if not settings['LOG_ENABLED']:  # Disables STDOUT :o
-                logging.getLogger('scrapy').propagate = False
-            qh = QueueHandler(q_log)
+
+        # Disable logging if progress bar is enabled.
+        # This needs to be done before starting spiders. Opening a spider
+        # might propagate other loggers, which is why the same operation is
+        # performed in the ProgressBar -extension.
+        disabled_loggers = []
+        if settings['PROGRESS_BAR_ENABLED']:
+            for existing_logger in logging.Logger.manager.loggerDict.values():
+                if not isinstance(existing_logger, logging.PlaceHolder):
+                    if existing_logger.propagate:
+                        existing_logger.propagate = False
+                        disabled_loggers.append(existing_logger)
+
+        # Setup logging (worker --> queuehandler --> root logger)
+        queue_handler = None
+        if log_queue is not None:
+            # Handler that forwards log messages / progress bar from logger
+            # into log queue
+            queue_handler = QueueHandler(log_queue)
+            queue_handler.setLevel(settings.get('LOG_LEVEL'))
+            queue_handler.setFormatter(
+                logging.Formatter(settings.get('LOG_FORMAT')))
+
             logger = logging.getLogger()
             logger.setLevel(settings.get('LOG_LEVEL'))
-            qh.setLevel(settings.get('LOG_LEVEL'))
-            qh.setFormatter(logging.Formatter(settings.get('LOG_FORMAT')))
-            logger.addHandler(qh)
+            logger.addHandler(queue_handler)
 
         # Start crawling
         runner = CrawlerRunner(settings)
         deferred = runner.crawl(spider_cls, **spider_params)
         deferred.addBoth(lambda _: reactor.stop())
         reactor.run()
-        q.put(None)
+        results_queue.put(None)
     except Exception as e:
-        q.put(e)
+        results_queue.put(e)
+    finally:
+        if queue_handler is not None:
+            logger.removeHandler(queue_handler)
+
+        if len(disabled_loggers) > 0:  # Re-enable disabled loggers
+            for disabled_logger in disabled_loggers:
+                disabled_logger.propagate = True
 
 
 class _SpiderWrapper:
