@@ -1,8 +1,8 @@
-name: Test
+name: Spiders
 
 on:
-  pull_request:
-    branches: [master]
+  schedule:
+    - cron: '0 6 * * *'
 
 jobs:
   scope:
@@ -16,35 +16,8 @@ jobs:
       - name: Find test scope
         id: scope
         run: |
-          echo "Git branch ${GITHUB_HEAD_REF}"
-          branchName=${GITHUB_HEAD_REF#refs/heads/}
-          spiderName=${branchName%%/*}
           allSpiders=$(cat SPIDERS | jq -R -s -c 'split("\n")')
-          isSpiderBranch=$(echo $allSpiders | jq --arg spiderName "$spiderName" 'index($spiderName)')
-          if [ "$isSpiderBranch" = "null" ]; then
-            echo "Building test matrix for all spiders: $allSpiders"
-            spiders=$(echo $allSpiders | jq '.+ ["not spider"]')
-          else
-            echo "Building test matrix only for spider \"$spiderName\""
-            spiders="[\"$spiderName\", \"not spider\"]"
-          fi
-          echo "Spider matrix: $spiders"
-          echo "::set-output name=spiders::$spiders"
-
-  lint:
-    name: Lint with flake8
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v3
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install flake8
-      - name: Lint with flake8
-        run: |
-          flake8 .
+          echo "::set-output name=spiders::$allSpiders"
 
   test:
     name: Test

@@ -1,4 +1,4 @@
-name: Upload to PyPi
+name: Upload distribution to PyPi
 
 on:
   release:
@@ -6,11 +6,12 @@ on:
 
 jobs:
   build-and-release:
+    name: Build and release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v3
-      - name: Build and upload distribution to Test PyPi
+      - name: Build and upload distribution to PyPi
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}

@@ -5,12 +5,6 @@ import io
 import logging
 import pickle
 
-# # Monkey patch, see https://github.com/pypa/pipenv/issues/2609
-# import webdriver_manager.utils
-# def console(text, bold=False):  # NOQA
-#     pass
-# webdriver_manager.utils.console = console  # NOQA
-
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.chrome.options import Options
@@ -29,7 +23,7 @@ class TqdmLogger(io.StringIO):
 
     def flush(self):
         if self.buf.strip() != '':
-            self.logger.log(logging.DEBUG, self.buf)
+            self.logger.log(logging.WARNING, self.buf)
 
 
 class QueueHandler(logging.Handler):
@@ -95,9 +89,13 @@ class QueueHandler(logging.Handler):
 def get_chromedriver(options=None):
     if not options:
         options = Options()
-        options.add_argument("--headless")
+        options.add_argument('--no-sandbox')
         options.add_argument("--disable-extensions")
         options.add_argument("--disable-gpu")
+        options.add_argument('--disable-dev-shm-usage')
+        options.add_argument("--headless")
+        options.add_experimental_option(
+            'prefs', {'intl.accept_languages': 'fi,fi_FI'})
     service = ChromeService(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
 
