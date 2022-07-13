@@ -1,7 +1,7 @@
 # finscraper
 
-![Spiders](https://github.com/jmyrberg/finscraper/actions/workflows/spiders.yml/badge.svg)
-![Documentation](https://readthedocs.org/projects/finscraper/badge/?version=latest)
+[![Spiders](https://github.com/jmyrberg/finscraper/actions/workflows/spiders.yml/badge.svg)](https://github.com/jmyrberg/finscraper/actions/workflows/spiders.yml)
+[![Documentation](https://readthedocs.org/projects/finscraper/badge/?version=latest)](https://finscraper.readthedocs.io/en/latest/?badge=latest)
 
 ![finscraper cover](https://github.com/jmyrberg/finscraper/blob/master/docs/cover.jpg?raw=true)
 
