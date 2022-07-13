@@ -13,7 +13,7 @@ jobs:
       spiders: ${{ steps.scope.outputs.spiders }}
     steps:
       - uses: actions/checkout@v3
-      - name: Find test scope
+      - name: Find spider matrix
         id: scope
         run: |
           echo "Git branch ${GITHUB_HEAD_REF}"
