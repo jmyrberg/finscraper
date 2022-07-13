@@ -1,0 +1,6 @@
+prune .github
+prune docs
+prune scripts
+prune tests
+exclude pytest.ini
+global-exclude .*
