@@ -6,6 +6,7 @@ import logging
 import pickle
 
 from selenium import webdriver
+from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
@@ -86,17 +87,40 @@ class QueueHandler(logging.Handler):
             self.handleError(record)
 
 
-def get_chromedriver(options=None):
-    if not options:
+def get_chromedriver(options=None, settings=None):
+    """Get chromedriver automatically.
+
+    Args:
+        options (selenium.webdriver.chrome.options.Options, optional):
+            Options to start chromedriver with. If None, will use default
+            settings. Defaults to None.
+        settings (scrapy.settings.Settings, optional): Scrapy settings to
+            take into consideration when starting chromedriver. If None,
+            will not be taken into consideration. Defaults to None.
+
+    Returns:
+        Selenium webdriver for Chrome (selenium.webdriver.Chrome).
+    """
+    settings = settings or {}
+    if options is None:
         options = Options()
         options.add_argument('--no-sandbox')
         options.add_argument("--disable-extensions")
         options.add_argument("--disable-gpu")
         options.add_argument('--disable-dev-shm-usage')
-        options.add_argument("--headless")
         options.add_experimental_option(
             'prefs', {'intl.accept_languages': 'fi,fi_FI'})
+        if not settings.get('DISABLE_HEADLESS', False):
+            options.add_argument("--headless")
+        if settings.get('PROGRESS_BAR_ENABLED', True):
+            options.add_argument('--disable-logging')
+
     service = ChromeService(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
+    if settings.get('MINIMIZE_WINDOW', False):
+        try:
+            driver.minimize_window()
+        except WebDriverException:
+            pass
 
     return driver

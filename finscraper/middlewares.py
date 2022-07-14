@@ -33,24 +33,8 @@ class SeleniumCallbackMiddleware:
         return middleware
 
     def spider_opened(self, spider):
-        options = Options()
-        options.add_argument('--no-sandbox')
-        options.add_argument("--disable-extensions")
-        options.add_argument("--disable-gpu")
-        options.add_argument('--disable-dev-shm-usage')
-        options.add_experimental_option(
-            'prefs', {'intl.accept_languages': 'fi,fi_FI'})
-        if not self.settings.get('DISABLE_HEADLESS', False):
-            options.add_argument("--headless")
-        if self.settings.get('PROGRESS_BAR_ENABLED', True):
-            options.add_argument('--disable-logging')
         try:
-            self.driver = get_chromedriver(options)
-            if self.settings.get('MINIMIZE_WINDOW', False):
-                try:
-                    self.driver.minimize_window()
-                except WebDriverException:
-                    pass
+            self.driver = get_chromedriver(settings=self.settings)
         except Exception:
             raise NotConfigured('Could not get chromedriver')
 

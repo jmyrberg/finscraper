@@ -20,6 +20,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from finscraper.request import SeleniumCallbackRequest
 from finscraper.text_utils import strip_join, drop_empty_elements, \
     paragraph_join
+from finscraper.utils import get_chromedriver
 
 
 logger = logging.getLogger(__name__)
@@ -27,32 +28,29 @@ logger = logging.getLogger(__name__)
 
 class _OikotieApartmentSpider(Spider):
     name = 'oikotieapartment'
-    start_urls = ['https://asunnot.oikotie.fi/myytavat-asunnot']
-    follow_link_extractor = LinkExtractor(
-        attrs=('href', 'ng-href'),
-        allow_domains=('asunnot.oikotie.fi'),
-        allow=(r'.*\/myytavat-asunnot\/.*'),
-        deny=(r'.*?origin\=.*'),
-        deny_domains=(),
-        canonicalize=True
-    )
+    base_url = 'https://asunnot.oikotie.fi/myytavat-asunnot'
     item_link_extractor = LinkExtractor(
         allow_domains=('asunnot.oikotie.fi'),
-        allow=(r'.*/myytavat-asunnot/.*/[0-9]+'),
+        allow=(r'.*\/myytavat-asunnot\/.*\/[0-9]{3,}'),
         deny=(r'.*?origin\=.*'),
         deny_domains=(),
         canonicalize=True
     )
     custom_settings = {
-        # The following needs to be set
+        # Custom
         'DISABLE_HEADLESS': True,
         'MINIMIZE_WINDOW': True,
+        # Scrapy
+        'AUTOTHROTTLE_ENABLED': True,
+        'AUTOTHROTTLE_TARGET_CONCURRENCY': 0.9,
+        'CONCURRENT_REQUESTS': 4,
         'ROBOTSTXT_OBEY': False,
         'DOWNLOADER_MIDDLEWARES': {
             'finscraper.middlewares.SeleniumCallbackMiddleware': 800
         }
     }
     itemcount = 0
+    listings_per_page = 24
     title2field = {
         # Perustiedot
         'Sijainti': 'location',
@@ -131,51 +129,97 @@ class _OikotieApartmentSpider(Spider):
         'Pintamateriaalit': 'wallcovering'
     }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, area=None, **kwargs):
         """Fetch oikotie.fi apartments.
 
         Args:
+            area (str, optional): Scrape listings based on area, e.g.
+                "helsinki" or "hausjärvi". The final URL will be formed as:
+                'https://asunnot.oikotie.fi/myytavat-asunnot/{area}'. Defaults
+                to None.
         """
-        kwargs['follow_request_type'] = SeleniumCallbackRequest
         super(_OikotieApartmentSpider, self).__init__(*args, **kwargs)
+        self.area = area
+
+        self._last_page = None
 
     def start_requests(self):
-        for url in self.start_urls:
+        # Render start page with headed Chrome
+        driver = get_chromedriver(settings=self.settings)
+
+        area = '' if self.area is None else f'/{self.area}'
+        base_url_with_area = f'{self.base_url}{area}'
+        logger.info(f'Using "{base_url_with_area}" as start URL')
+
+        driver.get(base_url_with_area)
+
+        # Click yes on modal, if it exists (Selenium)
+        self._handle_start_modal(driver)
+
+        # Find the last page in pagination
+        self._last_page = self._get_last_page(driver)
+
+        driver.close()
+
+        # Iterate pagination pages one-by-one and extract links + items
+        for page in range(1, self._last_page + 1):
+            url = f'{base_url_with_area}?pagination={page}'
             yield SeleniumCallbackRequest(
-                url, selenium_callback=self._handle_start)
+                url,
+                priority=10,
+                meta={'page': page},
+                selenium_callback=self._handle_pagination_page)
 
-    @staticmethod
-    def _handle_start(request, spider, driver):
-        driver.get(request.url)
+    def _get_last_page(self, driver):
+        logger.debug('Getting last page...')
+        last_page_xpath = '//span[contains(@ng-bind, "ctrl.totalPages")]'
+        last_page_element = driver.find_element(By.XPATH, last_page_xpath)
+        last_page = int(last_page_element.text.split('/')[-1].strip())
+        logger.debug(f'Last page found: {last_page}')
+        return last_page
 
+    def _handle_start_modal(self, driver):
+        # Click modal, if it exists
         try:
             # Find iframe
-            logger.info('Waiting for iframe...')
+            logger.debug('Waiting for iframe...')
             iframe_xpath = "//iframe[contains(@id, 'sp_message_iframe')]"
-            iframe = WebDriverWait(driver, 5).until(
+            iframe = WebDriverWait(driver, 2).until(
                 EC.presence_of_element_located((By.XPATH, iframe_xpath)))
             driver.switch_to.frame(iframe)
-            logger.info(f'Switched to iframe {iframe}')
+            logger.debug(f'Switched to iframe {iframe}')
 
             # Find button
-            logger.info('Finding button...')
+            logger.debug('Finding button...')
             button_xpath = "//button[contains(., 'Hyväksy')]"
-            WebDriverWait(driver, 5).until(
+            WebDriverWait(driver, 2).until(
                 EC.presence_of_element_located((By.XPATH, button_xpath)))
             modal = driver.find_element(By.XPATH, button_xpath)
-            logger.info('Clicking modal...')
+            logger.debug('Clicking modal...')
             modal.click()
-            logger.info('Waiting 1 second...')
-            driver.implicitly_wait(1)
-            logger.info('Waiting for modal to disappear...')
-            WebDriverWait(driver, 10).until(
+            logger.debug('Waiting for modal to disappear...')
+            WebDriverWait(driver, 2).until(
                 EC.invisibility_of_element_located((By.XPATH, button_xpath)))
 
-            logger.info('Switching to default frame')
+            logger.debug('Switching to default frame')
             driver.switch_to.default_content()
-            logger.info('Modal handled successfully!')
+            logger.debug('Modal handled successfully!')
         except TimeoutException:
             logger.warning('No modal found, assuming does not exist')
+
+    def _handle_pagination_page(self, request, spider, driver):
+        driver.get(request.url)
+
+        logger.debug('Scrolling pagination page to bottom...')
+        listings_xpath = '//div[contains(@class, "cards__card")]'
+        driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
+
+        logger.debug('Waiting for listings to be available...')
+        page = request.meta['page']
+        n_listings = self.listings_per_page if page < self._last_page else 1          
+        WebDriverWait(driver, 10).until(lambda browser:
+            len(browser.find_elements(By.XPATH, listings_xpath)) >= n_listings)
+        logger.debug('Listings rendered, returning response')
 
         return HtmlResponse(
             driver.current_url,
@@ -190,21 +234,15 @@ class _OikotieApartmentSpider(Spider):
         if self.itemcount and self.itemcount == max_itemcount:
             raise CloseSpider
 
-        if to_parse:
+        if to_parse:  # Parse listing item
             yield self._parse_item(resp)
             self.itemcount += 1
 
-        # Parse items and further on extract links from those pages
+        # Extract listing links and parse them
         item_links = self.item_link_extractor.extract_links(resp)
         for link in item_links:
             yield Request(link.url, callback=self.parse, priority=20,
                           cb_kwargs={'to_parse': True})
-
-        # Extract all links from this page
-        follow_links = self.follow_link_extractor.extract_links(resp)
-        for link in follow_links:
-            yield SeleniumCallbackRequest(
-                link.url, callback=self.parse, priority=10)
 
     def _parse_item(self, resp):
         il = ItemLoader(item=_OikotieApartmentItem(), response=resp)

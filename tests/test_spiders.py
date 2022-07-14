@@ -48,7 +48,7 @@ spiders = [
     },
     {
         'class': OikotieApartment,
-        'params': [None],
+        'params': [None, {'area': 'vuosaari'}],
         'n_fields': 80,
         'mark': pytest.mark.oikotieapartment
     },
@@ -97,6 +97,8 @@ def test_scraping(spider_cls, spider_params, n_fields, capsys, n_items=10):
 def test_functionality(spider_cls, spider_params):
     # Save and load
     spider = spider_cls(**spider_params).scrape(1)
+    for k, v in spider_params.items():
+        assert getattr(spider, k) == v
     df = spider.get()
     jobdir = spider.save()
     del spider
