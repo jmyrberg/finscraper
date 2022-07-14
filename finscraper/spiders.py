@@ -105,10 +105,11 @@ class VauvaPage(_SpiderWrapper):
 class OikotieApartment(_SpiderWrapper):
     __doc__ = _get_docstring(_OikotieApartmentSpider, _OikotieApartmentItem)
 
-    def __init__(self, jobdir=None, progress_bar=True, log_level=None):
+    def __init__(self, area=None, jobdir=None, progress_bar=True,
+                 log_level=None):
         super(OikotieApartment, self).__init__(
             spider_cls=_OikotieApartmentSpider,
-            spider_params=dict(),
+            spider_params=dict(area=area),
             jobdir=jobdir,
             progress_bar=progress_bar,
             log_level=log_level)
