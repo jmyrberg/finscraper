@@ -216,9 +216,11 @@ class _OikotieApartmentSpider(Spider):
 
         logger.debug('Waiting for listings to be available...')
         page = request.meta['page']
-        n_listings = self.listings_per_page if page < self._last_page else 1          
-        WebDriverWait(driver, 10).until(lambda browser:
-            len(browser.find_elements(By.XPATH, listings_xpath)) >= n_listings)
+        n_listings = self.listings_per_page if page < self._last_page else 1
+        WebDriverWait(driver, 10).until(
+            lambda browser:
+                len(browser.find_elements(By.XPATH, listings_xpath)) >=
+                n_listings)
         logger.debug('Listings rendered, returning response')
 
         return HtmlResponse(

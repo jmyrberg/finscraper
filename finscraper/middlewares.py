@@ -5,9 +5,6 @@ from scrapy import signals
 from scrapy.exceptions import NotConfigured
 from scrapy.http import HtmlResponse
 
-from selenium.webdriver.chrome.options import Options
-from selenium.common.exceptions import WebDriverException
-
 from finscraper.request import SeleniumCallbackRequest
 from finscraper.utils import get_chromedriver
 
