@@ -49,7 +49,7 @@ include = [
 
 [tool.versioneer]
 VCS = "git"
-style = "pep440"
+style = "pep440-pre"
 versionfile_source = "finscraper/_version.py"
 versionfile_build = "finscraper/_version.py"
 tag_prefix = ""
