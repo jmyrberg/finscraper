@@ -30,7 +30,8 @@ dynamic = ["version"]
 dev = [
     "pytest",
     "flake8",
-    "twine"
+    "twine",
+    "versioneer"
 ]
 
 [project.urls]
@@ -38,7 +39,7 @@ dev = [
 "Documentation" = "https://finscraper.readthedocs.io"
 
 [build-system]
-requires = ["setuptools", "setuptools-scm"]
+requires = ["setuptools", "versioneer[toml]==0.26"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
@@ -46,6 +47,10 @@ include = [
     "finscraper*"
 ]
 
-[tool.setuptools_scm]
-write_to = "finscraper/_version.py"
-local_scheme = "no-local-version"
+[tool.versioneer]
+VCS = "git"
+style = "pep440"
+versionfile_source = "finscraper/_version.py"
+versionfile_build = "finscraper/_version.py"
+tag_prefix = ""
+parentdir_prefix = "finscraper-"
