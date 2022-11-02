@@ -17,7 +17,7 @@ The library provides an easy-to-use API for fetching data from various Finnish w
 | [Oikotie Asunnot](https://asunnot.oikotie.fi/myytavat-asunnot) | Apartment ad      | `OikotieApartment` |
 | [Tori](https://www.tori.fi)                                    | Item deal         | `ToriDeal`         |
 
-Documentation is available at [https://finscraper.readthedocs.io](https://finscraper.readthedocs.io) and [simple online demo here](https://storage.googleapis.com/jmyrberg/index.html#/demo-projects/finscraper).
+Documentation is available at [https://finscraper.readthedocs.io](https://finscraper.readthedocs.io) and [simple online demo here](https://jmyrberg.com/demo-projects/finscraper).
 
 
 ## Installation
