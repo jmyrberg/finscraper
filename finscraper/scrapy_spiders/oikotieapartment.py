@@ -184,7 +184,7 @@ class _OikotieApartmentSpider(Spider):
             # Find iframe
             logger.debug('Waiting for iframe...')
             iframe_xpath = "//iframe[contains(@id, 'sp_message_iframe')]"
-            iframe = WebDriverWait(driver, 2).until(
+            iframe = WebDriverWait(driver, 5).until(
                 EC.presence_of_element_located((By.XPATH, iframe_xpath)))
             driver.switch_to.frame(iframe)
             logger.debug(f'Switched to iframe {iframe}')

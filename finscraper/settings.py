@@ -88,3 +88,6 @@ ITEM_PIPELINES = {
 # HTTPCACHE_DIR = 'httpcache'
 # HTTPCACHE_IGNORE_HTTP_CODES = []
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+
+# https://docs.scrapy.org/en/latest/topics/request-response.html#request-fingerprinter-implementation
+REQUEST_FINGERPRINTER_IMPLEMENTATION = '2.7'

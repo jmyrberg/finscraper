@@ -25,8 +25,10 @@ copyright = '2022, Jesse Myrberg'
 author = 'Jesse Myrberg'
 
 # The full version, including alpha/beta/rc tags
-from setuptools_scm import get_version
-release = get_version('../../')
+# https://github.com/python-versioneer/python-versioneer/issues/185
+from finscraper._version import get_versions
+release = get_versions()['version']
+del get_versions
 
 # -- General configuration ---------------------------------------------------
 
