@@ -112,9 +112,9 @@ def test_functionality(spider_cls, spider_params):
 @pytest.mark.xfail(reason='Benchmark')
 def test_benchmark_scrape_1_min(spider_cls, spider_params, capsys):
     df = spider_cls(**spider_params).scrape(0, 60).get()
-    assert len(df) >= 60
     with capsys.disabled():
         print(f'-- {len(df)} items')
+    assert len(df) >= 60
 
 
 @pytest.mark.parametrize('spider_cls, spider_params', other_cases,
@@ -124,6 +124,6 @@ def test_benchmark_scrape_100_items(spider_cls, spider_params, capsys):
     start = time.perf_counter()
     df = spider_cls(**spider_params).scrape(100).get()
     elapsed_time = int(time.perf_counter() - start)
-    assert len(df) >= 100
     with capsys.disabled():
         print(f'-- {elapsed_time} seconds ({len(df)} items)')
+    assert len(df) >= 100
