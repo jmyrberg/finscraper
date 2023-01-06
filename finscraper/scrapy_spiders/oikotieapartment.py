@@ -173,6 +173,8 @@ class _OikotieApartmentSpider(Spider):
     def _get_last_page(self, driver):
         logger.debug('Getting last page...')
         last_page_xpath = '//span[contains(@ng-bind, "ctrl.totalPages")]'
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, last_page_xpath)))
         last_page_element = driver.find_element(By.XPATH, last_page_xpath)
         last_page = int(last_page_element.text.split('/')[-1].strip())
         logger.debug(f'Last page found: {last_page}')
@@ -211,7 +213,7 @@ class _OikotieApartmentSpider(Spider):
         driver.get(request.url)
 
         logger.debug('Scrolling pagination page to bottom...')
-        listings_xpath = '//div[contains(@class, "cards__card")]'
+        listings_xpath = '//div[contains(@class, "ot-card-v2__wrapper")]'
         driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
 
         logger.debug('Waiting for listings to be available...')
