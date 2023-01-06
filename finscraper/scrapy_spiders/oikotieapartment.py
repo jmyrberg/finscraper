@@ -173,6 +173,8 @@ class _OikotieApartmentSpider(Spider):
     def _get_last_page(self, driver):
         logger.debug('Getting last page...')
         last_page_xpath = '//span[contains(@ng-bind, "ctrl.totalPages")]'
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, last_page_xpath)))
         last_page_element = driver.find_element(By.XPATH, last_page_xpath)
         last_page = int(last_page_element.text.split('/')[-1].strip())
         logger.debug(f'Last page found: {last_page}')
