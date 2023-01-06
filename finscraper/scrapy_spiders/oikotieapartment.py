@@ -211,7 +211,7 @@ class _OikotieApartmentSpider(Spider):
         driver.get(request.url)
 
         logger.debug('Scrolling pagination page to bottom...')
-        listings_xpath = '//div[contains(@class, "cards__card")]'
+        listings_xpath = '//div[contains(@class, "ot-card-v2__wrapper")]'
         driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
 
         logger.debug('Waiting for listings to be available...')
