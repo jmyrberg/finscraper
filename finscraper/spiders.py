@@ -4,23 +4,19 @@
 from textwrap import indent
 
 from finscraper.wrappers import _SpiderWrapper
-from finscraper.scrapy_spiders.ilarticle import _ILArticleSpider, \
-    _ILArticleItem
-from finscraper.scrapy_spiders.isarticle import _ISArticleSpider, \
-    _ISArticleItem
-from finscraper.scrapy_spiders.suomi24page import _Suomi24PageSpider, \
-    _Suomi24PageItem
-from finscraper.scrapy_spiders.vauvapage import _VauvaPageSpider, \
-    _VauvaPageItem
-from finscraper.scrapy_spiders.ylearticle import _YLEArticleSpider, \
-    _YLEArticleItem
-from finscraper.scrapy_spiders.oikotieapartment import \
-    _OikotieApartmentSpider, _OikotieApartmentItem
-from finscraper.scrapy_spiders.torideal import _ToriDealSpider, \
-    _ToriDealItem
+from finscraper.scrapy_spiders.ilarticle import _ILArticleSpider, _ILArticleItem
+from finscraper.scrapy_spiders.isarticle import _ISArticleSpider, _ISArticleItem
+from finscraper.scrapy_spiders.suomi24page import _Suomi24PageSpider, _Suomi24PageItem
+from finscraper.scrapy_spiders.vauvapage import _VauvaPageSpider, _VauvaPageItem
+from finscraper.scrapy_spiders.ylearticle import _YLEArticleSpider, _YLEArticleItem
+from finscraper.scrapy_spiders.oikotieapartment import (
+    _OikotieApartmentSpider,
+    _OikotieApartmentItem,
+)
+from finscraper.scrapy_spiders.torideal import _ToriDealSpider, _ToriDealItem
+from finscraper.scrapy_spiders.mnetpage import _MNetPageSpider, _MNetPageItem
 
-
-__wrapper_doc__ = '''
+__wrapper_doc__ = """
 jobdir (str or None, optional): Working directory of the spider.
     Defaults to None, which creates a temp directory to be used.
     Note that this directory will only be deleted through the ``clear`` method!
@@ -33,13 +29,15 @@ log_level (str or None, optional): Logging level to display. Should be in
     .. note::
         This parameter can be overridden through Scrapy ``settings``
         (LOG_LEVEL, LOG_ENABLED) within the ``scrape`` -method.
-'''
+"""
 
 
 def _get_docstring(spider_cls, item_cls):
-    return (spider_cls.__init__.__doc__.strip() +
-            indent(__wrapper_doc__, ' ' * 12) +
-            indent(item_cls.__doc__, ' ' * 4))
+    return (
+        spider_cls.__init__.__doc__.strip()
+        + indent(__wrapper_doc__, " " * 12)
+        + indent(item_cls.__doc__, " " * 4)
+    )
 
 
 class ISArticle(_SpiderWrapper):
@@ -51,7 +49,8 @@ class ISArticle(_SpiderWrapper):
             spider_params=dict(),
             jobdir=jobdir,
             progress_bar=progress_bar,
-            log_level=log_level)
+            log_level=log_level,
+        )
 
 
 class ILArticle(_SpiderWrapper):
@@ -63,7 +62,8 @@ class ILArticle(_SpiderWrapper):
             spider_params=dict(),
             jobdir=jobdir,
             progress_bar=progress_bar,
-            log_level=log_level)
+            log_level=log_level,
+        )
 
 
 class YLEArticle(_SpiderWrapper):
@@ -75,7 +75,8 @@ class YLEArticle(_SpiderWrapper):
             spider_params=dict(),
             jobdir=jobdir,
             progress_bar=progress_bar,
-            log_level=log_level)
+            log_level=log_level,
+        )
 
 
 class Suomi24Page(_SpiderWrapper):
@@ -87,7 +88,8 @@ class Suomi24Page(_SpiderWrapper):
             spider_params=dict(),
             jobdir=jobdir,
             progress_bar=progress_bar,
-            log_level=log_level)
+            log_level=log_level,
+        )
 
 
 class VauvaPage(_SpiderWrapper):
@@ -99,20 +101,21 @@ class VauvaPage(_SpiderWrapper):
             spider_params=dict(),
             jobdir=jobdir,
             progress_bar=progress_bar,
-            log_level=log_level)
+            log_level=log_level,
+        )
 
 
 class OikotieApartment(_SpiderWrapper):
     __doc__ = _get_docstring(_OikotieApartmentSpider, _OikotieApartmentItem)
 
-    def __init__(self, area=None, jobdir=None, progress_bar=True,
-                 log_level=None):
+    def __init__(self, area=None, jobdir=None, progress_bar=True, log_level=None):
         super(OikotieApartment, self).__init__(
             spider_cls=_OikotieApartmentSpider,
             spider_params=dict(area=area),
             jobdir=jobdir,
             progress_bar=progress_bar,
-            log_level=log_level)
+            log_level=log_level,
+        )
 
 
 class ToriDeal(_SpiderWrapper):
@@ -124,4 +127,18 @@ class ToriDeal(_SpiderWrapper):
             spider_params=dict(),
             jobdir=jobdir,
             progress_bar=progress_bar,
-            log_level=log_level)
+            log_level=log_level,
+        )
+
+
+class MNetPage(_SpiderWrapper):
+    __doc__ = _get_docstring(_MNetPageSpider, _MNetPageItem)
+
+    def __init__(self, jobdir=None, progress_bar=True, log_level=None):
+        super(MNetPage, self).__init__(
+            spider_cls=_MNetPageSpider,
+            spider_params=dict(),
+            jobdir=jobdir,
+            progress_bar=progress_bar,
+            log_level=log_level,
+        )
