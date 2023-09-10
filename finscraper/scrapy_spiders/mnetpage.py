@@ -33,7 +33,10 @@ class _MNetPageSpider(FollowAndParseItemMixin, Spider):
     custom_settings = {}
 
     def __init__(self, *args, **kwargs):
-        """Scrape content from 'muusikoiden.net' web forum."""
+        """Fetch threads from muusikoiden.net discussions.
+
+        Args:
+        """
         super(_MNetPageSpider, self).__init__(*args, **kwargs)
 
     def _parse_message(self, message: Selector, author: str, time_posted: str):

@@ -8,11 +8,12 @@
 The library provides an easy-to-use API for fetching data from various Finnish websites:
 
 | Website                                                        | Type              | Spider API class   |
-| -------------------------------------------------------------- | ----------------- | ------------------ |
+|----------------------------------------------------------------|-------------------|--------------------|
 | [Ilta-Sanomat](https://www.is.fi)                              | News article      | `ISArticle`        |
 | [Iltalehti](https://www.il.fi)                                 | News article      | `ILArticle`        |
 | [YLE Uutiset](https://www.yle.fi/uutiset)                      | News article      | `YLEArticle`       |
 | [Suomi24](https://keskustelu.suomi24.fi)                       | Discussion thread | `Suomi24Page`      |
+| [Muusikoiden.net](https://www.muusikoiden.net)                 | Discussion thread | `MNetPage`         |
 | [Vauva](https://www.vauva.fi)                                  | Discussion thread | `VauvaPage`        |
 | [Oikotie Asunnot](https://asunnot.oikotie.fi/myytavat-asunnot) | Apartment ad      | `OikotieApartment` |
 | [Tori](https://www.tori.fi)                                    | Item deal         | `ToriDeal`         |
