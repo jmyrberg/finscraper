@@ -20,15 +20,15 @@ class _YLEArticleSpider(FollowAndParseItemMixin, Spider):
     start_urls = ['https://www.yle.fi/uutiset']
     follow_link_extractor = LinkExtractor(
         allow_domains=('yle.fi'),
-        allow=(r'.*/(uutiset|urheilu)/.*'),
+        allow=(r'.*/(uutiset|urheilu|a)/.*'),
         deny=(),
         deny_domains=(),
         canonicalize=True
     )
     item_link_extractor = LinkExtractor(
         allow_domains=('yle.fi'),
-        allow=(r'(uutiset|urheilu)/[0-9]+\-[0-9]+'),
-        deny=(r'(uutiset|urheilu)/18-'),
+        allow=(r'(uutiset|urheilu|a)/[0-9]+\-[0-9]+'),
+        deny=(r'(uutiset|urheilu|a)/18-'),
         deny_domains=(),
         canonicalize=True
     )
@@ -60,27 +60,35 @@ class _YLEArticleSpider(FollowAndParseItemMixin, Spider):
         il.add_xpath(
             'title',
             '//article'
-            '//div[contains(@class, "article__header")]'
+            '//header[contains(@class, "article__header")]'
             '//h1[contains(@class, "article__heading")]//text()')
         il.add_xpath(
             'ingress',
             '//article'
-            '//div[contains(@class, "article__header")]'
+            '//header[contains(@class, "article__header")]'
             '//p[contains(@class, "article__paragraph")]//text()')
 
-        pgraphs_xpath = ('//article//div[contains(@class, "article__content")]'
-                         '//p[contains(@class, "article__paragraph")]')
+        pgraphs_xpath = (
+            '//article//section[contains(@class, "article__content")]'
+            '//p[contains(@class, "article__paragraph")]'
+        )
         content = [''.join(Selector(text=pgraph).xpath('//text()').getall())
                    for pgraph in resp.xpath(pgraphs_xpath).getall()]
         il.add_value('content', content)
 
+        # Header div based on position: 1=domain, 2=author, 3=published
         il.add_xpath(
             'published',
-            '//article//div[contains(@class, "article__header")]'
-            '//span[contains(@class, "article__date")]//text()')
+            '//article'
+            '//header[contains(@class, "article__header")]'
+            '//div[contains(@class, "article__date")]//text()')
         il.add_xpath(
             'author',
-            '//article//span[contains(@class, "author__name")]//text()')
+            '//article'
+            '//header[contains(@class, "article__header")]'
+            '//div[contains(@class, "aw-")][2]'
+            '//span[contains(@class, "aw-")]'
+            '//text()')
         il.add_xpath(
             'images',
             '//article//figure[contains(@class, "article__figure")]')
