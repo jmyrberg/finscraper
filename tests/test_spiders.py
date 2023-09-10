@@ -81,7 +81,8 @@ scrape_cases = [
 ]
 
 other_cases = [
-    pytest.param(s["class"], p, marks=s["mark"]) for s in spiders for p in s["params"]
+    pytest.param(s["class"], p, marks=s["mark"])
+    for s in spiders for p in s["params"]
 ]
 
 
@@ -91,7 +92,9 @@ def spider_params(request):
 
 
 @pytest.mark.parametrize(
-    "spider_cls, spider_params, n_fields", scrape_cases, indirect=["spider_params"]
+    "spider_cls, spider_params, n_fields",
+    scrape_cases,
+    indirect=["spider_params"]
 )
 def test_scraping(spider_cls, spider_params, n_fields, capsys, n_items=10):
     # Scraping

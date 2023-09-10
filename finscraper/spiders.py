@@ -4,11 +4,16 @@
 from textwrap import indent
 
 from finscraper.wrappers import _SpiderWrapper
-from finscraper.scrapy_spiders.ilarticle import _ILArticleSpider, _ILArticleItem
-from finscraper.scrapy_spiders.isarticle import _ISArticleSpider, _ISArticleItem
-from finscraper.scrapy_spiders.suomi24page import _Suomi24PageSpider, _Suomi24PageItem
-from finscraper.scrapy_spiders.vauvapage import _VauvaPageSpider, _VauvaPageItem
-from finscraper.scrapy_spiders.ylearticle import _YLEArticleSpider, _YLEArticleItem
+from finscraper.scrapy_spiders.ilarticle import _ILArticleSpider, \
+    _ILArticleItem
+from finscraper.scrapy_spiders.isarticle import _ISArticleSpider, \
+    _ISArticleItem
+from finscraper.scrapy_spiders.suomi24page import _Suomi24PageSpider, \
+    _Suomi24PageItem
+from finscraper.scrapy_spiders.vauvapage import _VauvaPageSpider, \
+    _VauvaPageItem
+from finscraper.scrapy_spiders.ylearticle import _YLEArticleSpider, \
+    _YLEArticleItem
 from finscraper.scrapy_spiders.oikotieapartment import (
     _OikotieApartmentSpider,
     _OikotieApartmentItem,
@@ -34,9 +39,9 @@ log_level (str or None, optional): Logging level to display. Should be in
 
 def _get_docstring(spider_cls, item_cls):
     return (
-        spider_cls.__init__.__doc__.strip()
-        + indent(__wrapper_doc__, " " * 12)
-        + indent(item_cls.__doc__, " " * 4)
+        spider_cls.__init__.__doc__.strip() +
+        indent(__wrapper_doc__, " " * 12) +
+        indent(item_cls.__doc__, " " * 4)
     )
 
 
@@ -108,7 +113,8 @@ class VauvaPage(_SpiderWrapper):
 class OikotieApartment(_SpiderWrapper):
     __doc__ = _get_docstring(_OikotieApartmentSpider, _OikotieApartmentItem)
 
-    def __init__(self, area=None, jobdir=None, progress_bar=True, log_level=None):
+    def __init__(self, area=None, jobdir=None, progress_bar=True,
+                 log_level=None):
         super(OikotieApartment, self).__init__(
             spider_cls=_OikotieApartmentSpider,
             spider_params=dict(area=area),
